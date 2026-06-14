@@ -1,0 +1,29 @@
+name: dotnet-pr
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: net/global.json
+
+      - name: Restore
+        working-directory: net
+        run: dotnet restore
+
+      - name: Build
+        working-directory: net
+        run: dotnet build --no-restore
+
+      - name: Test
+        working-directory: net
+        run: dotnet test --no-build
