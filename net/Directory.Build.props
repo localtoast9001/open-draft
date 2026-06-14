@@ -1,0 +1,36 @@
+<Project>
+  <!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <BuildRoot>$(MSBuildThisFileDirectory)../</BuildRoot>
+    <OutRootDir>$(BuildRoot)out/net/</OutRootDir>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <OutDir>$(OutRootDir)$(Configuration)/$(MSBuildProjectName)/$(TargetFramework)/</OutDir>
+    <PackageOutputPath>$(OutRootDir)packages/</PackageOutputPath>
+    <AssemblyVersion>0.9.0.0</AssemblyVersion>
+    <PackageVersion>0.9.0-Alpha</PackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
+</Project>
