@@ -6,6 +6,9 @@
 # Output Directory
 out/
 
+# CMake build output
+cpp/build/
+
 # dotenv files
 .env
 
