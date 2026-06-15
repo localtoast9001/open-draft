@@ -1,3 +1,3 @@
 # Java Reference Implementation
 
-Placeholder for Java reference implementation and shared libs.
+Java reference implementation and shared libs.

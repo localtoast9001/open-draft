@@ -8,6 +8,7 @@ out/
 
 # CMake build output
 cpp/build/
+java/build/
 
 # dotenv files
 .env
