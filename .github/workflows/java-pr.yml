@@ -1,0 +1,24 @@
+name: java-pr
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Configure CMake
+        run: cmake -S java -B java/build
+
+      - name: Build
+        run: cmake --build java/build --config Release

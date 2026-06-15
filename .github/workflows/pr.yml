@@ -8,3 +8,6 @@ on:
 jobs:
   dotnet-pr:
     uses: ./.github/workflows/dotnet-pr.yml
+
+  java-pr:
+    uses: ./.github/workflows/java-pr.yml
