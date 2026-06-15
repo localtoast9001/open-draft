@@ -6,6 +6,9 @@ on:
       - main
 
 jobs:
+  cpp-pr:
+    uses: ./.github/workflows/cpp-pr.yml
+
   dotnet-pr:
     uses: ./.github/workflows/dotnet-pr.yml
 
