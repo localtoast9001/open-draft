@@ -24,6 +24,12 @@ jobs:
         working-directory: net
         run: dotnet build --no-restore
 
-      - name: Test
-        working-directory: net
-        run: dotnet test --no-build
+      - name: Test With Coverage
+        run: ./net/test.sh --no-build
+
+      - name: Upload .NET Test Logs And Coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: net-test-logs
+          path: out/logs/net/
