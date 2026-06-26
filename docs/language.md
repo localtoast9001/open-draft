@@ -88,7 +88,7 @@ These sequences of symbols have distinct meaning as tokens.
 
 ## Grammar Reference
 
-_program_ ::= *import_statement* * *program_element* *
+_program_ ::= *import_statement* * *program_element* *  
 
 *import_statement* ::= `import` *string_literal* `;`  
 
@@ -99,7 +99,7 @@ _program_ ::= *import_statement* * *program_element* *
     *namespace_definition* |  
     *function_definition* |  
     *template_definition* |  
-    *variable_definition*
+    *core_statement*
     
 *namespace_definition* ::= `namespace` _identifier_ `{` *program_element* * `}`
 
@@ -108,20 +108,30 @@ _program_ ::= *import_statement* * *program_element* *
 *enum_val* ::= _identifier_ [ `=` *numeric_literal* ]  
 
 ### Class Definition
-*class_definition* ::= `class` _identifier_ [ `:` *base_and_interface_list* ]  
-*base_and_interface_list* ::= *type_reference* ( `,` *type_reference* )*
+*class_definition* ::= `class` _identifier_ [ `:` *base_and_interface_list* ]  `{` *class_member* * `}`  
+*base_and_interface_list* ::= *type_reference* ( `,` *type_reference* )*  
+*class_member* ::= [ `static` ] ( *class_variable* | *class_function* | *class_template* )  
+*class_variable* ::= [ *type_reference* ] _identifier_ [ `=` _expression_ ] `;`  
+*class_function* ::= `function` _identifier_ *parameters_declaration* *statement*  
+*class_template* ::= `template` _identifier_ *parameters_declaration* *statement*  
 
 ### Interface Definition
 
-*interface_definition* ::= `interface` _identifier_ [ `:` *base_and_interface_list* ] `{` ( *function_declaration* | *template_declaration* )* `}`  
+*interface_definition* ::= `interface` _identifier_ [ `:` *base_and_interface_list* ] `{` *interface_member* * `}`  
+*interface_member* ::= *function_declaration* | *template_declaration*
 *function_declaration* ::= `function` _identifier_ *parameters_declaration* `;`  
 *template_declaration* ::= `template` _identifier_ *parameters_declaration* `;`  
 
 ### Function and Template Definitions
 
-*function_definition* ::= `function` _identifier_ *parameters_declaration* *block_statement*
+*function_definition* ::= `function` _identifier_ *parameters_declaration* *statement*
 
-*template_definition* ::= `template` _identifier_ *parameters_declaration* *block_statement*
+*template_definition* ::= `template` _identifier_ *parameters_declaration* *statement*  
+
+*parameters_declaration* ::= `(` _e_ | ( *parameter_declaration* ( `,` *parameter_declaration* )* ) `)`  
+*parameter_declaration* ::= [ *type_reference* ] _identifier_ [ `=` _expression_ ]  
+
+*variable_definition* ::= [ *type_reference* ] _identifier_ `=` _expression_ `;`  
 
 ### Statements
 _statement_ ::= *block_statement* | *core_statement*  
@@ -143,7 +153,7 @@ _statement_ ::= *block_statement* | *core_statement*
 *for_condition* ::= [ *type_reference* ] _identifier_ [ `,` _identifier_ ]* `:` _expression_
 *break_statement* ::= `break` `;`  
 *continue_statement* ::= `continue` `;`  
-*return_statement* ::= `return` _expression_ `;`  
+*return_statement* ::= `return` [ _expression_ ] `;`  
 *assign_statement* ::= [ *type_reference* ] _identifier_ `=` _expression_ `;`    
 *call_statement* ::= *reference_expression* `(` *argument_list* `)` `;`  
 *throw_statement* ::= `throw` _expression_ `;`  
