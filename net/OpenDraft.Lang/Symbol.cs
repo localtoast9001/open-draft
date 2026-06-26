@@ -50,6 +50,11 @@ public enum Symbol
     Semicolon,
 
     /// <summary>
+    /// Represents the ':' symbol.
+    /// </summary>
+    Colon,
+
+    /// <summary>
     /// Represents the ',' symbol.
     /// </summary>
     Comma,

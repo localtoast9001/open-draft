@@ -40,6 +40,12 @@ public class TokenReader : IDisposable
         this.column = startSource.ColumnNumber > 0 ? startSource.ColumnNumber : 1;
     }
 
+    /// <summary>
+    /// Gets the current source reference for the next token to be read.
+    /// </summary>
+    public SourceReference CurrentSource =>
+        new SourceReference(this.startSource.Path, this.line, this.column);
+
     /// <inheritdoc/>
     public void Dispose()
     {

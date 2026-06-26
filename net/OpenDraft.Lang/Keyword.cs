@@ -20,14 +20,24 @@ public enum Keyword
     @Class,
 
     /// <summary>
-    /// Represents the 'interface' keyword.
-    /// </summary>
-    @Interface,
-
-    /// <summary>
     /// Represents the 'enum' keyword.
     /// </summary>
     @Enum,
+
+    /// <summary>
+    /// Represents the 'function' keyword.
+    /// </summary>
+    Function,
+
+    /// <summary>
+    /// Represents the 'import' keyword.
+    /// </summary>
+    Import,
+
+    /// <summary>
+    /// Represents the 'interface' keyword.
+    /// </summary>
+    @Interface,
 
     /// <summary>
     /// Represents the 'if' keyword.
@@ -38,4 +48,9 @@ public enum Keyword
     /// Represents the 'for' keyword.
     /// </summary>
     @For,
+
+    /// <summary>
+    /// Represents the 'template' keyword.
+    /// </summary>
+    Template,
 }
