@@ -25,3 +25,6 @@ jobs:
 
       - name: Build
         run: cmake --build java/build --config Release
+
+      - name: Run Unit Tests
+        run: cmake --build java/build --target unit-tests

@@ -13,6 +13,12 @@ add_custom_target(checkstyle
   COMMENT "Running Checkstyle (Sun style)"
 )
 
+add_custom_target(unit-tests
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/run-tests.sh
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMENT "Running Java unit tests"
+)
+
 file(MAKE_DIRECTORY ${open_draft_java_output_dir})
 
 function(add_open_draft_package target_name package_name source_dir)
