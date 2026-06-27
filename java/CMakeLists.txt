@@ -2,9 +2,22 @@ cmake_minimum_required(VERSION 3.20)
 
 project(open_draft_java VERSION 0.9.0 LANGUAGES Java)
 
+find_package(Java REQUIRED)
 include(UseJava)
 
 set(open_draft_java_output_dir ${CMAKE_CURRENT_SOURCE_DIR}/../out/java)
+
+add_custom_target(checkstyle
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/run-checkstyle.sh
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMENT "Running Checkstyle (Sun style)"
+)
+
+add_custom_target(unit-tests
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/run-tests.sh
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMENT "Running Java unit tests"
+)
 
 file(MAKE_DIRECTORY ${open_draft_java_output_dir})
 
@@ -25,11 +38,11 @@ endfunction()
 add_open_draft_package(
   opendraft_core
   io.github.localtoast9001.opendraft.core
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/io/github/localtoast9001/opendraft/core
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/io/github/localtoast9001/opendraft/core
 )
 
 add_open_draft_package(
   opendraft_lang
   io.github.localtoast9001.opendraft.lang
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/io/github/localtoast9001/opendraft/lang
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/io/github/localtoast9001/opendraft/lang
 )

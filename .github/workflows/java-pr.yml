@@ -20,5 +20,11 @@ jobs:
       - name: Configure CMake
         run: cmake -S java -B java/build
 
+      - name: Checkstyle (Sun Style)
+        run: cmake --build java/build --target checkstyle
+
       - name: Build
         run: cmake --build java/build --config Release
+
+      - name: Run Unit Tests
+        run: cmake --build java/build --target unit-tests
