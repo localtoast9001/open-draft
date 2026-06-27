@@ -1,5 +1,6 @@
 {
     "chat.tools.terminal.autoApprove": {
         "dotnet test": true
-    }
+    },
+    "cmake.sourceDirectory": "/home/jon/code/open-draft/java"
 }
