@@ -16,3 +16,6 @@ jobs:
 
       - name: Build
         run: cmake --build cpp/build --config Release
+
+      - name: Run Tests
+        run: cmake --build cpp/build --config Release --target unit-tests
