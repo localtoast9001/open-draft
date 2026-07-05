@@ -44,6 +44,7 @@ namespace testfx
 
         int total_passed = 0;
         int total_failed = 0;
+        std::chrono::duration<double> total_duration(0);
 
         for (const auto& pair : _test_classes)
         {
@@ -54,13 +55,24 @@ namespace testfx
             total_passed += summary.passed_tests();
             total_failed += summary.failed_tests();
 
+            double us = std::chrono::duration_cast<std::chrono::duration<double, std::micro>>(summary.total_duration()).count();
             std::cout << cls->name() << ": "
                 << summary.passed_tests() << " passed, "
-                << summary.failed_tests() << " failed.\n";
+                << summary.failed_tests() << " failed. ("
+                << us << "us)" 
+                << std::endl;
 
+            total_duration += summary.total_duration();
         }
 
-        std::cout << "Total: " << total_passed << " passed, " << total_failed << " failed.\n";
+        double total_us = std::chrono::duration_cast<std::chrono::duration<double, std::micro>>(total_duration).count();
+        std::cout
+            << "Total: "
+            << total_passed
+            << " passed, "
+            << total_failed 
+            << " failed. (" << total_us << "us)"
+            << std::endl;
 
         return total_failed == 0; // Return true if all tests passed, false otherwise
     }
@@ -79,13 +91,10 @@ namespace testfx
 
             run_test_method(cls, test_name, method, result);
             summary.add_result(result);
-            if (result.passed())
+            double us = std::chrono::duration_cast<std::chrono::duration<double, std::micro>>(result.duration()).count();
+            std::cout << (result.passed() ? k_pass_label : k_fail_label) << " " << full_test_name << " (" << us << "us)" << std::endl;
+            if (!result.passed())
             {
-                std::cout << k_pass_label << " " << full_test_name << " (" << std::chrono::duration_cast<std::chrono::microseconds>(result.duration()).count() << "us)" << std::endl;
-            }
-            else
-            {
-                std::cout << k_fail_label << " " << full_test_name << " (" << std::chrono::duration_cast<std::chrono::microseconds>(result.duration()).count() << "us)" << std::endl;
                 std::cout << "    " << result.message() << std::endl;
             }
         }

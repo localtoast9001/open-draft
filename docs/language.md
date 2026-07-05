@@ -47,13 +47,28 @@ Similar C or FORTRAN, there are supported escape sequences starting with a `\`. 
 ### Keywords
 These are reserved words that cannot be used as identifiers.  
 
+`break` - break statement.  
 `class` - defines a new class type.  
+`continue` - continue statement.  
+`debug` - debug trace statement.  
 `enum` - defines a new enumeration type.  
+`error` - error trace statement.  
 `false` - literal for a false boolean value.  
+`for` - for loop statement.  
 `function` - defines a function.  
+`if` - if statement.  
+`import` - imports a module.  
+`info` - info trace statement.
 `interface` - defines an interface.     
+`namespace` - namespace declaration.  
+`null` - null literal.  
+`return` - return statement.  
+`static` - static member modifier.  
 `template` - defines a template.  
-`true` - literal for a true boolean value.
+`throw` - throw statement.  
+`true` - literal for a true boolean value.  
+`verbose` - verbose trace statement.  
+`warn` - warn trace statement.  
 
 ### Symbols
 These sequences of symbols have distinct meaning as tokens.  
@@ -68,6 +83,7 @@ These sequences of symbols have distinct meaning as tokens.
 `+` - addition binary operator or unary positive operator.  
 `=` - assignment operator.  
 `==` - equals operator.  
+`!=` - not equals operator.  
 `[` - array start.  
 `]` - array end.  
 `{` - block start.  
@@ -76,15 +92,19 @@ These sequences of symbols have distinct meaning as tokens.
 `|` - bitwise OR operator.  
 `||` - logical OR operator.   
 `:` - context specific.  
-`::` - scoping operator.  
 `;` - statement end.  
 `,` - context specific.  
 `<` - less than operator.  
 `<=` - less than or equal to operator.  
 `>` - greater than operator.  
 `>=` - greater than or equal to operator.  
+`<<` - shift left operator.  
+`>>` - shift right operator.  
 `?` - start of a conditional operator.  
 `??` - reserved.  
+`.` - scoping operator.  
+`..` - range operator.  
+`!` - logical inverse.  
 
 ## Grammar Reference
 
@@ -175,7 +195,7 @@ _statement_ ::= *block_statement* | *core_statement*
 *range_expression* ::= *unary_expression* [ `..` *unary_expression* ]  
 *unary_expression* ::= ( ( `-` | `+` | `!` | `~` ) *unary_expression* ) | *paren_expression* | *reference_expression* | *literal_expression* | *array_expression* | *object_expression*    
 *paren_expression* ::= `(` _expression_ `)`  
-*literal_expression* ::= `true` | `false` | *numeric_literal* | *string_literal*  
+*literal_expression* ::= `true` | `false` | `null` | *numeric_literal* | *string_literal*  
 *array_expression* ::= `[` _expression_ [ `,` _expression_ ]* `]`  
 *object_expression* ::= `{` *obj_member* [ `,` *obj_member* ]* `}`
 *reference_expression* ::= _identifier_ | *member_reference* | *array_index* | *call_expression*  
@@ -184,3 +204,35 @@ _statement_ ::= *block_statement* | *core_statement*
 *call_expression* ::= *reference_expression* `(` *argument_list* `)`  
 *obj_member* ::= _identifier_ `=` _expression_  
 
+## Messages
+These are the messages, with specific codes and severity, that should be produced by any compiler or interpreter implementation of the language.  
+
+Severity can be one of the following:
+1. **error** - Indicates the component processing the input cannot infer or otherwise produce valid output required by the next stage.
+2. **warning** - Indicates a condition encountered where syntax may be undesired but still constitutes a valid program.  
+3. **info** - Indicates an informational message.  
+
+Each messages has a default severity. Implementations may allow the user to treat warnings as errors or modify the severity of each message.  
+
+Codes start with `ODL` followed by a 4 digit decimal code. Ranges of codes are reserved for specific areas of implementation according to responsibility.
+
+0000        - Unused.  
+0001-0999   - Internal or implementation specific messsages.  
+1000-1999   - Lexer messages.  
+2000-2999   - Parser messages.  
+3000-3999   - Syntax analysis messages.  
+
+### Lexer Messages (ODL1000-ODL1999)
+ODL1000 - **ERROR** - Unterminated string literal.  
+ODL1001 - **ERROR** - Unrecognized character.  
+ODL1002 - **ERROR** - Unterminated multi-line comment.  
+
+### Parser Messages (ODL2000-ODL2999)
+ODL2000 - **ERROR** - Unexpected end of file.  
+ODL2001 - **ERROR** - Keyword {keyword} expected.  
+ODL2002 - **ERROR** - Symbol {symbol} expected.  
+ODL2003 - **ERROR** - Identifier expected.  
+ODL2004 - **ERROR** - String literal expected.  
+ODL2005 - **ERROR** - Numeric literal expected.  
+ODL2006 - **ERROR** - Integer literal expected.  
+ODL2100 - **ERROR** - Unexpected token.  
