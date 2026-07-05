@@ -29,6 +29,11 @@ public:
     void to_string_with_path_line_and_column_test();
     void to_string_with_path_line_column_endline_endcolumn_test();
     void to_string_with_path_line_endline_test();
+    void copy_constructor_test();
+    void assignment_operator_test();
+    void equality_operator_test();
+    void inequality_operator_test();
+    void stream_insertion_operator_test();
 };
 
 source_reference_test source_reference_test::instance;
@@ -47,6 +52,11 @@ source_reference_test::source_reference_test()
     add("to_string_with_path_line_and_column_test", (test_method)&source_reference_test::to_string_with_path_line_and_column_test);
     add("to_string_with_path_line_column_endline_endcolumn_test", (test_method)&source_reference_test::to_string_with_path_line_column_endline_endcolumn_test);
     add("to_string_with_path_line_endline_test", (test_method)&source_reference_test::to_string_with_path_line_endline_test);
+    add("copy_constructor_test", (test_method)&source_reference_test::copy_constructor_test);
+    add("assignment_operator_test", (test_method)&source_reference_test::assignment_operator_test);
+    add("equality_operator_test", (test_method)&source_reference_test::equality_operator_test);
+    add("inequality_operator_test", (test_method)&source_reference_test::inequality_operator_test);
+    add("stream_insertion_operator_test", (test_method)&source_reference_test::stream_insertion_operator_test);
 }
 
 void source_reference_test::default_constructor_test()
@@ -133,4 +143,49 @@ void source_reference_test::to_string_with_path_line_endline_test()
 {
     source_reference ref("test.cpp", 10, 0, 12, 0);
     assert_equal(std::string("test.cpp:10-12"), ref.to_string());
+}
+
+void source_reference_test::copy_constructor_test()
+{
+    source_reference ref1("test.cpp", 10, 5, 12, 8);
+    source_reference ref2(ref1);
+    assert_equal(ref1.path(), ref2.path());
+    assert_equal(ref1.line(), ref2.line());
+    assert_equal(ref1.column(), ref2.column());
+    assert_equal(ref1.end_line(), ref2.end_line());
+    assert_equal(ref1.end_column(), ref2.end_column());
+}
+
+void source_reference_test::assignment_operator_test()
+{
+    source_reference ref1("test.cpp", 10, 5, 12, 8);
+    source_reference ref2;
+    ref2 = ref1;
+    assert_equal(ref1.path(), ref2.path());
+    assert_equal(ref1.line(), ref2.line());
+    assert_equal(ref1.column(), ref2.column());
+    assert_equal(ref1.end_line(), ref2.end_line());
+    assert_equal(ref1.end_column(), ref2.end_column());
+}
+
+void source_reference_test::equality_operator_test()
+{
+    source_reference ref1("test.cpp", 10, 5, 12, 8);
+    source_reference ref2("test.cpp", 10, 5, 12, 8);
+    assert_equal(true, ref1 == ref2);
+}
+
+void source_reference_test::inequality_operator_test()
+{
+    source_reference ref1("test.cpp", 10, 5, 12, 8);
+    source_reference ref2("test.cpp", 10, 5, 12, 9);
+    assert_equal(true, ref1 != ref2);
+}
+
+void source_reference_test::stream_insertion_operator_test()
+{
+    source_reference ref("test.cpp", 10, 5, 12, 8);
+    std::ostringstream oss;
+    oss << ref;
+    assert_equal(std::string("test.cpp:10:5-12:8"), oss.str());
 }

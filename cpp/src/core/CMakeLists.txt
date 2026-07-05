@@ -16,7 +16,7 @@ add_library(opendraft_core STATIC ${OPENDRAFT_CORE_SOURCES})
 
 target_include_directories(opendraft_core
   PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/pub
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/pub/core
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../inc
 )

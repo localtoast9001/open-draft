@@ -209,12 +209,14 @@ namespace testfx
 
         inline int passed_tests() const { return _passed_tests; }
         inline int failed_tests() const { return _failed_tests; }
+        inline const std::chrono::duration<double>& total_duration() const { return _total_duration; }
 
         void add_result(const test_result& result);
 
     private:
         int _passed_tests;
         int _failed_tests;
+        std::chrono::duration<double> _total_duration;
     };
 
     template<typename T>
