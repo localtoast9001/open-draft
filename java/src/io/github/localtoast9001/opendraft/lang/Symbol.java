@@ -8,7 +8,7 @@ package io.github.localtoast9001.opendraft.lang;
  * Symbols used in the OpenDraft language.
  */
 public enum Symbol {
-    NONE,
+    UNDEFINED,
     LEFT_PAREN,
     RIGHT_PAREN,
     LEFT_BRACE,
@@ -27,5 +27,54 @@ public enum Symbol {
     GREATER,
     BANG,
     AMPERSAND,
-    PIPE,
+    PIPE;
+
+    static Symbol fromString(String str) {
+        if (str == null) {
+            return UNDEFINED;
+        }
+
+        switch (str) {
+            case "(":
+                return LEFT_PAREN;
+            case ")":
+                return RIGHT_PAREN;
+            case "{":
+                return LEFT_BRACE;
+            case "}":
+                return RIGHT_BRACE;
+            case "[":
+                return LEFT_BRACKET;
+            case "]":
+                return RIGHT_BRACKET;
+            case ",":
+                return COMMA;
+            case ".":
+                return DOT;
+            case ";":
+                return SEMICOLON;
+            case "+":
+                return PLUS;
+            case "-":
+                return MINUS;
+            case "*":
+                return STAR;
+            case "/":
+                return SLASH;
+            case "=":
+                return EQUAL;
+            case "<":
+                return LESS;
+            case ">":
+                return GREATER;
+            case "!":
+                return BANG;
+            case "&":
+                return AMPERSAND;
+            case "|":
+                return PIPE;
+            default:
+                return UNDEFINED;
+        }
+    }
 }
