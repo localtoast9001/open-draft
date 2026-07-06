@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 /**
  * Reads tokens from a source.
  */
-public class TokenReader {
+public final class TokenReader {
     private final WrappedInputStreamReader inner;
     private final Consumer<Message> messageCallback;
     private Token peekedToken;
@@ -17,6 +17,8 @@ public class TokenReader {
     /**
      * Creates a new instance of the TokenReader class.
      * @param inner The input stream reader to read tokens from.
+     * @param startSource The source reference to use for the first token.
+     * @param messageCallback The callback to use for messages.
      * @throws IllegalArgumentException if inner is null.
      */
     public TokenReader(
@@ -31,10 +33,19 @@ public class TokenReader {
         this.messageCallback = messageCallback;
     }
 
+    /**
+     * Returns the current source reference of the token reader.
+     * @return the current source reference
+     */
     public SourceReference getCurrentSource() {
         return inner.getCurrentSource();
     }
 
+    /**
+     * Peeks at the next token without consuming it.
+     * @return the next token
+     * @throws java.io.IOException if an I/O error occurs
+     */
     public Token peek() throws java.io.IOException {
         if (this.peekedToken == null) {
             this.peekedToken = innerRead();
@@ -43,6 +54,11 @@ public class TokenReader {
         return this.peekedToken;
     }
 
+    /**
+     * Reads and consumes the next token.
+     * @return the next token
+     * @throws java.io.IOException if an I/O error occurs
+     */
     public Token read() throws java.io.IOException {
         Token result = peek();
         this.peekedToken = null;
@@ -68,8 +84,7 @@ public class TokenReader {
             return readIdentifierOrKeyword();
         } else if (isDigit(ch)) {
             return readNumericLiteral();
-        }
-        else if (ch == '"') {
+        } else if (ch == '"') {
             return readStringLiteral();
         } else {
             return readSymbol();
@@ -104,7 +119,7 @@ public class TokenReader {
         }
 
         String value = sb.toString();
-        return new NumericLiteralToken(startSource, (Number)Integer.parseInt(value));
+        return new NumericLiteralToken(startSource, Integer.parseInt(value));
     }
 
     private Token readStringLiteral() throws java.io.IOException {
@@ -148,14 +163,14 @@ public class TokenReader {
         }
     }
 
-    class WrappedInputStreamReader {
+    private final class WrappedInputStreamReader {
         private final InputStreamReader inner;
         private SourceReference startSource;
         private int peekedChar = -1;
         private int line;
         private int column;
-        
-        public WrappedInputStreamReader(
+
+        WrappedInputStreamReader(
             InputStreamReader inner,
             SourceReference startSource) {
             this.inner = inner;
