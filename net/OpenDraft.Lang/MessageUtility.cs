@@ -15,6 +15,26 @@ internal static class MessageUtility
     public static readonly MessageId UnterminatedStringLiteralMessageId = new MessageId(Constants.DefaultMessageCategory, 1000);
 
     /// <summary>
+    /// Represents the message id for an invalid character error message.
+    /// </summary>
+    public static readonly MessageId InvalidCharacterMessageId = new MessageId(Constants.DefaultMessageCategory, 1001);
+
+    /// <summary>
+    /// Represents the message id for an unterminated multi-line comment error message.
+    /// </summary>
+    public static readonly MessageId UnterminatedMultiLineCommentMessageId = new MessageId(Constants.DefaultMessageCategory, 1002);
+
+    /// <summary>
+    /// Represents the message id for an unknown escape sequence error message.
+    /// </summary>
+    public static readonly MessageId UnknownEscapeSequenceMessageId = new MessageId(Constants.DefaultMessageCategory, 1003);
+
+    /// <summary>
+    /// Represents the message id for an invalid hexadecimal escape sequence error message.
+    /// </summary>
+    public static readonly MessageId InvalidHexEscapeSequenceMessageId = new MessageId(Constants.DefaultMessageCategory, 1004);
+
+    /// <summary>
     /// Represents the message id for an unexpected end of file error message.
     /// </summary>
     public static readonly MessageId UnexpectedEndOfFileMessageId = new MessageId(Constants.DefaultMessageCategory, 2000);
@@ -66,6 +86,64 @@ internal static class MessageUtility
             UnterminatedStringLiteralMessageId,
             source,
             "Unterminated string literal.");
+    }
+
+    /// <summary>
+    /// Creates a message for an invalid character error.
+    /// </summary>
+    /// <param name="source">The source reference for the error.</param>
+    /// <param name="character">The invalid character.</param>
+    /// <returns>The created message.</returns>
+    public static Message InvalidCharacter(SourceReference source, char character)
+    {
+        return new Message(
+            MessageSeverity.Error,
+            InvalidCharacterMessageId,
+            source,
+            $"Invalid character '{character}'.");
+    }
+
+    /// <summary>
+    /// Creates a message for an unterminated multi-line comment error.
+    /// </summary>
+    /// <param name="source">The source reference for the error.</param>
+    /// <returns>The created message.</returns>
+    public static Message UnterminatedMultiLineComment(SourceReference source)
+    {
+        return new Message(
+            MessageSeverity.Error,
+            UnterminatedMultiLineCommentMessageId,
+            source,
+            "Unterminated multi-line comment.");
+    }
+
+    /// <summary>
+    /// Creates a message for an unknown escape sequence error.
+    /// </summary>
+    /// <param name="source">The source reference for the error.</param>
+    /// <param name="character">The unknown escape sequence character.</param>
+    /// <returns>The created message.</returns>
+    public static Message UnknownEscapeSequence(SourceReference source, char character)
+    {
+        return new Message(
+            MessageSeverity.Error,
+            UnknownEscapeSequenceMessageId,
+            source,
+            $"Unknown escape sequence '\\{character}'.");
+    }
+
+    /// <summary>
+    /// Creates a message for an invalid hexadecimal escape sequence error.
+    /// </summary>
+    /// <param name="source">The source reference for the error.</param>
+    /// <returns>The created message.</returns>
+    public static Message InvalidHexEscapeSequence(SourceReference source)
+    {
+        return new Message(
+            MessageSeverity.Error,
+            InvalidHexEscapeSequenceMessageId,
+            source,
+            "Invalid hexadecimal escape sequence.");
     }
 
     /// <summary>

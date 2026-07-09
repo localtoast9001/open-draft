@@ -372,15 +372,76 @@ public class TokenReader : IDisposable
     /// <returns>The read string literal token, or <c>null</c> if the string literal is unterminated.</returns>
     private StringLiteralToken? ReadStringLiteral()
     {
-        StringBuilder sb = new StringBuilder();
+        // Use a UTF-8 encoding to handle multi-byte characters correctly.
+        using var ms = new MemoryStream();
+        using var writer = new StreamWriter(
+            ms,
+            Encoding.UTF8,
+            1,
+            leaveOpen: true);
         int lineStart = this.line;
         int columnStart = this.column;
         _ = this.ReadChar(); // Consume the opening quote.
         int ch = this.PeekChar();
-        while (ch > 0 && ch != '"')
+        while (ch > 0 && ch != '"' && ch != '\n')
         {
             _ = this.ReadChar();
-            sb.Append((char)ch);
+            if (ch == '\\')
+            {
+                ch = this.ReadChar();
+                switch (ch)
+                {
+                    case 'a':
+                        writer.Write('\a');
+                        break;
+                    case 'b':
+                        writer.Write('\b');
+                        break;
+                    case 'f':
+                        writer.Write('\f');
+                        break;
+                    case 'v':
+                        writer.Write('\v');
+                        break;
+                    case 'n':
+                        writer.Write('\n');
+                        break;
+                    case 'r':
+                        writer.Write('\r');
+                        break;
+                    case 't':
+                        writer.Write('\t');
+                        break;
+                    case '"':
+                        writer.Write('"');
+                        break;
+                    case '\\':
+                        writer.Write('\\');
+                        break;
+                    case 'x':
+                        {
+                            int hexValue = this.ReadHexEscapeSequence();
+                            if (hexValue < 0)
+                            {
+                                this.log(MessageUtility.InvalidHexEscapeSequence(this.GetTokenSource(lineStart, columnStart)));
+                                return null;
+                            }
+
+                            writer.Flush();
+                            ms.WriteByte((byte)hexValue);
+                        }
+
+                        break;
+                    default:
+                        this.log(MessageUtility.UnknownEscapeSequence(this.GetTokenSource(lineStart, columnStart), (char)ch));
+                        return null;
+                }
+            }
+            else
+            {
+                writer.Write((char)ch);
+            }
+
             ch = this.PeekChar();
         }
 
@@ -395,9 +456,63 @@ public class TokenReader : IDisposable
             return null;
         }
 
-        string value = sb.ToString();
+        writer.Flush();
+        ms.Position = 0;
+        string value = Encoding.UTF8.GetString(ms.ToArray());
+        if (value.Length > 0)
+        {
+            value = value.Substring(1); // Remove encoding byte.
+        }
+
         var tokenSource = this.GetTokenSource(lineStart, columnStart);
         return new StringLiteralToken(tokenSource, value);
+    }
+
+    /// <summary>
+    /// Reads the next 1 or 2 digits of a hexadecimal escape sequence from the input.
+    /// </summary>
+    /// <returns>The integer value of the hexadecimal escape sequence, or -1 if invalid.</returns>
+    private int ReadHexEscapeSequence()
+    {
+        int value = 0;
+        int ch = this.PeekHexDigit();
+        if (ch < 0)
+        {
+            return -1;
+        }
+
+        _ = this.ReadChar();
+        value = ch;
+
+        ch = this.PeekHexDigit();
+        if (ch >= 0)
+        {
+            _ = this.ReadChar();
+            value = (value * 0x10) + ch;
+        }
+
+        return value;
+    }
+
+    private int PeekHexDigit()
+    {
+        int ch = this.PeekChar();
+        if (ch >= '0' && ch <= '9')
+        {
+            return ch - '0';
+        }
+
+        if (ch >= 'a' && ch <= 'f')
+        {
+            return ch - 'a' + 10;
+        }
+
+        if (ch >= 'A' && ch <= 'F')
+        {
+            return ch - 'A' + 10;
+        }
+
+        return -1;
     }
 
     private CommentToken ReadSingleLineComment(int lineStart, int columnStart)
