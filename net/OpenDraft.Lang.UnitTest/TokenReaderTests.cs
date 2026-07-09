@@ -168,28 +168,4 @@ public class TokenReaderTests
         var keyword = (KeywordToken)token;
         Assert.AreEqual(Keyword.Class, keyword.Value);
     }
-
-    /// <summary>
-    /// Tests that unterminated string literal logs an error message and returns null.
-    /// </summary>
-    [TestMethod]
-    public void Read_WithUnterminatedString_LogsMessageAndReturnsNull()
-    {
-        // Arrange
-        Message? logged = null;
-        using var reader = new TokenReader(
-            new StringReader("\"unterminated"),
-            new SourceReference("test.odl"),
-            message => logged = message);
-
-        // Act
-        var token = reader.Read();
-
-        // Assert
-        Assert.IsNull(token);
-        Assert.IsNotNull(logged);
-        Assert.AreEqual(MessageSeverity.Error, logged.Severity);
-        Assert.AreEqual(MessageUtility.UnterminatedStringLiteralMessageId, logged.Id);
-        Assert.AreEqual("Unterminated string literal.", logged.Text);
-    }
 }

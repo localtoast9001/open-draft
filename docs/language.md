@@ -33,16 +33,21 @@ An octal literal starts with `0o` or `0O` followed by a sequence of one or more 
 A binary literal starts with `0b` or `0B` followed by a sequence of `0`-`1`.
 
 ### String Literal
-A string literal starts with `"` and ends with `"`. Unterminated strings generate an error condition.  
+A string literal starts with `"` and ends with `"`. Unterminated strings generate an error condition during lexical analysis. The sequence of characters inside the string can be one of the following:
+1. Any literal UTF-8 character sequence except `"`, `\`, newline (U+000A), or carriage return (U+000D).  
+2. An escape sequence described below.  
 
 Similar C or FORTRAN, there are supported escape sequences starting with a `\`. The following are recognized escape sequences:
 * `\\` - a single `\` character.
 * `\"` - a single `"` character.
-* `\n` - a newline character. ASCII/UTF code 0x10.
-* `\r` - a carriage return character. ASCII/UTF code 0x13.
-* `\t` - a tab character. TODO: put the code in.
-* `\x`NN - a hexadecimal code for a UTF-8 encoded character. 
-
+* `\a` - audible bell character. (U+0007).
+* `\b` - backspace character. (U+0008).
+* `\t` - a tab character. (U+0009).  
+* `\n` - a newline character. (U+000A).
+* `\v` - verticle tab. (U+000B).
+* `\f` - form feed. (U+000C).
+* `\r` - a carriage return character. (U+000D).
+* `\x`{N:1-2} - a one or 2 digit hexadecimal code for a UTF-8 encoded character. 
 
 ### Keywords
 These are reserved words that cannot be used as identifiers.  
@@ -226,6 +231,8 @@ Codes start with `ODL` followed by a 4 digit decimal code. Ranges of codes are r
 ODL1000 - **ERROR** - Unterminated string literal.  
 ODL1001 - **ERROR** - Unrecognized character.  
 ODL1002 - **ERROR** - Unterminated multi-line comment.  
+ODL1003 - **ERROR** - Unknown escape sequence in string literal.
+ODL1004 - **ERROR** - Invalid hex value argument to escape sequence in string literal.  
 
 ### Parser Messages (ODL2000-ODL2999)
 ODL2000 - **ERROR** - Unexpected end of file.  
