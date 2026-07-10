@@ -81,9 +81,80 @@ public class TokenReader : IDisposable
         return token;
     }
 
+    private static bool IsDigit(int ch) =>
+        ch >= '0' && ch <= '9';
+
+    private static bool IsLetter(int ch) =>
+        (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+
+    private static int GetDigit(int ch, int radix)
+    {
+        if (radix <= 10)
+        {
+            if (ch >= '0' && ch < '0' + radix)
+            {
+                return ch - '0';
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        if (radix == 16)
+        {
+            if (IsDigit(ch))
+            {
+                return ch - '0';
+            }
+            else if (ch >= 'a' && ch <= 'f')
+            {
+                return ch - 'a' + 10;
+            }
+            else if (ch >= 'A' && ch <= 'F')
+            {
+                return ch - 'A' + 10;
+            }
+        }
+
+        return -1;
+    }
+
+    private static int GetRadix(int ch)
+    {
+        switch (ch)
+        {
+            case 'x':
+            case 'X':
+                return 16;
+            case 'o':
+            case 'O':
+                return 8;
+            case 'b':
+            case 'B':
+                return 2;
+            default:
+                return 10;
+        }
+    }
+
+    private static bool IsIdentifierStart(int ch) =>
+        IsLetter(ch) || ch == '_';
+
+    private static bool IsIdentifierPart(int ch) =>
+        IsIdentifierStart(ch) || IsDigit(ch);
+
+    private static bool IsUnitStart(int ch) =>
+        IsIdentifierStart(ch) ||
+        ch == '\'' || ch == '"' || ch == '°' || ch == '㎭';
+
+    private static bool IsUnitPart(int ch) =>
+        IsIdentifierPart(ch);
+
     private Token? InnerRead()
     {
         this.SkipWhitespace();
+        var startSourceRef = this.CurrentSource;
         int lineStart = this.line;
         int columnStart = this.column;
         int ch = this.PeekChar();
@@ -92,13 +163,13 @@ public class TokenReader : IDisposable
             return null;
         }
 
-        if (char.IsLetter((char)ch) || ch == '_')
+        if (IsIdentifierStart(ch))
         {
             return this.ReadIdentifierOrKeyword();
         }
-        else if (char.IsDigit((char)ch))
+        else if (IsDigit(ch))
         {
-            return this.ReadNumberLiteral(lineStart, columnStart);
+            return this.ReadNumericLiteral();
         }
         else if (ch == '"')
         {
@@ -131,7 +202,9 @@ public class TokenReader : IDisposable
             ch = this.PeekChar();
             if (char.IsDigit((char)ch))
             {
-                return this.ReadNumberLiteral(lineStart, columnStart, startWithDot: true);
+                return this.ReadDecimalLiteral(
+                    startSourceRef,
+                    intPart: 0);
             }
             else if (ch == '.')
             {
@@ -277,7 +350,7 @@ public class TokenReader : IDisposable
         int lineStart = this.line;
         int columnStart = this.column;
         int ch = this.PeekChar();
-        while (ch > 0 && (char.IsLetterOrDigit((char)ch) || ch == '_'))
+        while (ch > 0 && IsIdentifierPart(ch))
         {
             _ = this.ReadChar();
             sb.Append((char)ch);
@@ -297,73 +370,216 @@ public class TokenReader : IDisposable
         }
     }
 
-    private NumericLiteralToken ReadNumberLiteral(
-        int lineStart,
-        int columnStart,
-        bool startWithDot = false)
+    private Token? ReadNumericLiteral()
     {
+        var startSource = this.CurrentSource;
         long intPart = 0;
-        double fracPart = 0;
-        long expPart = 0;
         int ch = this.PeekChar();
-        if (!startWithDot)
+        int radix = 10;
+        if (ch == '0')
         {
-            while (ch > 0 && char.IsDigit((char)ch))
+            _ = this.ReadChar();
+            ch = this.PeekChar();
+            radix = GetRadix(ch);
+            if (radix != 10)
             {
                 _ = this.ReadChar();
-                intPart = (intPart * 10) + (ch - '0');
                 ch = this.PeekChar();
+                if (GetDigit(ch, radix) < 0)
+                {
+                    this.log(MessageUtility.InvalidNumberAfterRadixSpecifier(this.CurrentSource));
+                    return null;
+                }
             }
         }
 
-        if (ch == '.' && !startWithDot)
+        int digit = GetDigit(ch, radix);
+        while (digit >= 0)
         {
             _ = this.ReadChar();
+            intPart = (intPart * radix) + digit;
+            ch = this.PeekChar();
+            digit = GetDigit(ch, radix);
+        }
+
+        int exponent = 0;
+        bool hasExponent = false;
+        if (radix == 10)
+        {
+            if (ch == '.')
+            {
+                _ = this.ReadChar();
+                return this.ReadDecimalLiteral(startSource, intPart);
+            }
+
+            if (ch == 'e' || ch == 'E')
+            {
+                _ = this.ReadChar();
+                hasExponent = true;
+                if (!this.TryReadExponentPart(out exponent))
+                {
+                    return null; // Error message already logged.
+                }
+            }
+        }
+
+        string? unit = null;
+        ch = this.PeekChar();
+        if (IsUnitStart(ch))
+        {
+            unit = this.ReadUnit();
+            if (unit == null)
+            {
+                return null; // Error message already logged.
+            }
+        }
+
+        if (hasExponent)
+        {
+            decimal result = intPart * (decimal)Math.Pow(10, exponent);
+            var source = new SourceReference(
+                this.startSource.Path,
+                startSource.LineNumber,
+                startSource.ColumnNumber,
+                this.line,
+                this.column);
+            return new NumericLiteralToken(
+                source,
+                result,
+                unit);
+        }
+        else
+        {
+            var source = new SourceReference(
+                this.startSource.Path,
+                startSource.LineNumber,
+                startSource.ColumnNumber,
+                this.line,
+                this.column);
+            return new NumericLiteralToken(
+                source,
+                intPart,
+                unit);
+        }
+    }
+
+    private string? ReadUnit()
+    {
+        StringBuilder sb = new StringBuilder();
+        int ch = this.ReadChar();
+        sb.Append((char)ch);
+        ch = this.PeekChar();
+        while (IsUnitPart(ch))
+        {
+            _ = this.ReadChar();
+            sb.Append((char)ch);
             ch = this.PeekChar();
         }
 
-        double fracMul = 0.1;
-        while (ch > 0 && char.IsDigit((char)ch))
+        // The 1st underscore is a delimiter and is removed from the result.
+        if (sb[0] == '_')
+        {
+            sb.Remove(0, 1);
+        }
+
+        if (sb.Length == 0)
+        {
+            this.log(MessageUtility.InvalidUnitSpecifier(this.GetTokenSource(), sb.ToString()));
+            return null; // error.
+        }
+
+        return sb.ToString();
+    }
+
+    private Token? ReadDecimalLiteral(
+        SourceReference startSource,
+        long intPart)
+    {
+        // The decimal point has already been read.
+        decimal fracPart = 0m;
+        decimal multiplier = 0.1m;
+        int ch = this.PeekChar();
+        while (IsDigit(ch))
         {
             _ = this.ReadChar();
-            fracPart = fracPart + ((ch - '0') * fracMul);
-            fracMul *= 0.1;
+            fracPart += (ch - '0') * multiplier;
+            multiplier *= 0.1m;
             ch = this.PeekChar();
         }
 
+        int exponent = 0;
         if (ch == 'e' || ch == 'E')
         {
             _ = this.ReadChar();
-            ch = this.PeekChar();
-            bool expNegative = false;
-            if (ch == '+' || ch == '-')
+            if (!this.TryReadExponentPart(out exponent))
             {
-                expNegative = ch == '-';
-                _ = this.ReadChar();
-                ch = this.PeekChar();
-            }
-
-            while (ch > 0 && char.IsDigit((char)ch))
-            {
-                _ = this.ReadChar();
-                expPart = (expPart * 10) + (ch - '0');
-                ch = this.PeekChar();
-            }
-
-            if (expNegative)
-            {
-                expPart = -expPart;
+                return null; // Error message already logged.
             }
         }
 
-        var source = this.GetTokenSource(lineStart, columnStart);
-        var result = intPart + fracPart;
-        if (expPart != 0)
+        // The exponent sign has already been handled in TryReadExponentPart.
+        decimal result = intPart + fracPart;
+        if (exponent != 0)
         {
-            result *= Math.Pow(10, expPart);
+            result *= (decimal)Math.Pow(10, exponent);
         }
 
-        return new NumericLiteralToken(source, result);
+        string? unit = null;
+        ch = this.PeekChar();
+        if (IsUnitStart(ch))
+        {
+            unit = this.ReadUnit();
+            if (unit == null)
+            {
+                return null; // Error message already logged.
+            }
+        }
+
+        var source = new SourceReference(
+            this.startSource.Path,
+            startSource.LineNumber,
+            startSource.ColumnNumber,
+            this.line,
+            this.column);
+        return new NumericLiteralToken(
+            source,
+            result,
+            unit);
+    }
+
+    private bool TryReadExponentPart(
+        out int exponent)
+    {
+        // 'e' or 'E' has already been read.
+        exponent = 0;
+        bool negativeExponent = false;
+        int ch = this.PeekChar();
+        if (ch == '+' || ch == '-')
+        {
+            negativeExponent = ch == '-';
+            _ = this.ReadChar();
+            ch = this.PeekChar();
+        }
+
+        if (!IsDigit(ch))
+        {
+            this.log(MessageUtility.ExpectedDigitAfterExponent(this.GetTokenSource()));
+            return false;
+        }
+
+        while (IsDigit(ch))
+        {
+            _ = this.ReadChar();
+            exponent = (exponent * 10) + (ch - '0');
+            ch = this.PeekChar();
+        }
+
+        if (negativeExponent)
+        {
+            exponent = -exponent;
+        }
+
+        return true;
     }
 
     /// <summary>
