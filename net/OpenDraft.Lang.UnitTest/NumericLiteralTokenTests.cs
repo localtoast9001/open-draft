@@ -21,13 +21,14 @@ public class NumericLiteralTokenTests
         var value = 42L;
 
         // Act
-        var token = new NumericLiteralToken(source, value);
+        var token = new NumericLiteralToken(source, value, "mm");
 
         // Assert
         Assert.AreSame(source, token.Source);
         Assert.IsFalse(token.IsFloatingPoint);
         Assert.AreEqual(value, token.IntegerValue);
-        Assert.AreEqual(0d, token.FloatingPointValue);
+        Assert.AreEqual(0m, token.FloatingPointValue);
+        Assert.AreEqual("mm", token.Unit);
     }
 
     /// <summary>
@@ -38,16 +39,17 @@ public class NumericLiteralTokenTests
     {
         // Arrange
         var source = new SourceReference("test.odl", 3, 4);
-        var value = 3.14159d;
+        var value = 3.14159m;
 
         // Act
-        var token = new NumericLiteralToken(source, value);
+        var token = new NumericLiteralToken(source, value, "mm");
 
         // Assert
         Assert.AreSame(source, token.Source);
         Assert.IsTrue(token.IsFloatingPoint);
         Assert.AreEqual(0L, token.IntegerValue);
-        Assert.AreEqual(value, token.FloatingPointValue, 0.0000001d);
+        Assert.AreEqual(value, token.FloatingPointValue, 0.0000001m);
+        Assert.AreEqual("mm", token.Unit);
     }
 
     /// <summary>
@@ -78,7 +80,7 @@ public class NumericLiteralTokenTests
         try
         {
             // Act
-            _ = new NumericLiteralToken(null!, 1.0d);
+            _ = new NumericLiteralToken(null!, 1.0m);
             Assert.Fail("Expected ArgumentNullException for null source.");
         }
         catch (ArgumentNullException ex)

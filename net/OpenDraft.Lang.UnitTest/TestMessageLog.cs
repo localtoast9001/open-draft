@@ -32,6 +32,10 @@ public class TestMessageLog
     /// </summary>
     public void AssertClean()
     {
-        Assert.HasCount(0, this.messages, "Expected no messages to be logged.");
-    }
+        if (this.messages.Count != 0)
+        {
+            var allMessages = string.Join(", ", this.messages);
+            Assert.Fail($"Expected no messages to be logged, but found {this.messages.Count}: {allMessages}.");
+        }
+   }
 }

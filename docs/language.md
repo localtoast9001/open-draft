@@ -32,6 +32,28 @@ An octal literal starts with `0o` or `0O` followed by a sequence of one or more 
 
 A binary literal starts with `0b` or `0B` followed by a sequence of `0`-`1`.
 
+#### Units
+Numeric literals can also be qualifed with a unit of measurement. The unit syntax is as follows:  
+_unit_ ::= *unit_start_char* ( *unit_char* )*  
+*unit_start_char* ::= `'` | `"` | `°` (U+00B0) | `㎭` (U+33AD) | `a` - `z` | `A` - `Z`  
+*unit_char* ::= `a`-`z` | `A`-`Z` | `0`-`9` | `_`
+The unit immediately follows the numeric character sequence without spaces. To disambiguate hex digits and the exponent, the `_` delimiter can be used between the number and the unit.
+
+Unit mechanics are discussed separately.  
+Examples:  
+* `5m` - 5 metres.  
+* `5in` - 5 inches.
+* `5"` - 5 inches.
+* `5ft` - 5 feet.
+* `5'` - 5 feet.
+* `60°` - 60 degrees.
+* `45deg` - 45 degrees.
+* `1.0e-03rad` - 0.001 radians.
+* `3.14㎭` - 3.14 radians.
+* `0x1c_cm` - 0x1c (28) centimetres.
+* `0x1ccm` - 0x1cc (460) metres.
+* `0x5_ft` - 5 feet.
+
 ### String Literal
 A string literal starts with `"` and ends with `"`. Unterminated strings generate an error condition during lexical analysis. The sequence of characters inside the string can be one of the following:
 1. Any literal UTF-8 character sequence except `"`, `\`, newline (U+000A), or carriage return (U+000D).  
@@ -233,6 +255,9 @@ ODL1001 - **ERROR** - Unrecognized character.
 ODL1002 - **ERROR** - Unterminated multi-line comment.  
 ODL1003 - **ERROR** - Unknown escape sequence in string literal.
 ODL1004 - **ERROR** - Invalid hex value argument to escape sequence in string literal.  
+ODL1005 - **ERROR** - Expected decimal value for exponent in numeric literal.  
+ODL1006 - **ERROR** - Invalid unit specifier in numeric literal.  
+ODL1007 - **ERROR** - Invalid number after radix specifier.  
 
 ### Parser Messages (ODL2000-ODL2999)
 ODL2000 - **ERROR** - Unexpected end of file.  

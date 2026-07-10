@@ -346,6 +346,7 @@ std::shared_ptr<token> token_reader::read_numeric_literal()
         int_part = int_part * 10 + (ch - '0');
         ch = _inner.peek();
     }
+
     if (ch == '.')
     {
         read_char();

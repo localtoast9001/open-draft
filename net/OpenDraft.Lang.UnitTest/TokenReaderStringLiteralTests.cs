@@ -19,7 +19,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void EmptyStringTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: string.Empty,
             input: "\"\"");
     }
@@ -30,7 +30,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void BasicStringTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "Hello, World!",
             input: "\"Hello, World!\"");
     }
@@ -41,7 +41,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void EscapedStringTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "Hello, \"World\"!",
             input: "\"Hello, \\\"World\\\"!\"");
     }
@@ -52,7 +52,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void EmojiStringTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "Hello, 🌍!",
             input: "\"Hello, 🌍!\"");
     }
@@ -63,7 +63,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void HebrewStringTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "שלום עולם",
             input: "\"שלום עולם\"");
     }
@@ -74,7 +74,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void ArabicStringTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "مرحبا بالعالم",
             input: "\"مرحبا بالعالم\"");
     }
@@ -85,7 +85,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void TraditionalChineseStringTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "屙屎屙飯",
             input: "\"屙屎屙飯\"");
     }
@@ -96,7 +96,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void SimplifiedChineseStringTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "吃屎",
             input: "\"吃屎\"");
     }
@@ -107,7 +107,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void JapaneseStringTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "うんこを食べる",
             input: "\"うんこを食べる\"");
     }
@@ -118,7 +118,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void KoreanStringTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "똥을 먹다",
             input: "\"똥을 먹다\"");
     }
@@ -129,7 +129,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void EscapeSequenceTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "Hello, \"World\"!\nNew line.",
             input: "\"Hello, \\\"World\\\"!\\nNew line.\"");
     }
@@ -140,7 +140,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void AllEscapeSequenceTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "\a\b\f\n\r\t\v\\\"",
             input: "\"\\a\\b\\f\\n\\r\\t\\v\\\\\\\"\"");
     }
@@ -151,7 +151,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void HexadecimalEscapeSequenceTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "Hello, World! \x41\x42\x43",
             input: "\"Hello, World! \\x41\\x42\\x43\"");
     }
@@ -162,7 +162,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void Utf8HexEscapeSequenceTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "🤡🌎",
             input: "\"\\xF0\\x9F\\xA4\\xA1\\xF0\\x9F\\x8C\\x8E\"");
     }
@@ -173,7 +173,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void SingleDigitHexEscapeSequenceTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "Hello, World! \xA",
             input: "\"Hello, World! \\xA\"");
     }
@@ -184,7 +184,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void EmbeddedNullCharacterTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "Hello, World! \0",
             input: "\"Hello, World! \\x00\"");
     }
@@ -195,7 +195,7 @@ public class TokenReaderStringLiteralTests
     [TestMethod]
     public void MixedCaseHexEscapeSequenceTest()
     {
-        SingleTokenCleanTest(
+        TokenReaderTestUtility.SingleTokenCleanTest(
             expectedValue: "Hello, World! \x0A\x0A\x0A\x0A",
             input: "\"Hello, World! \\xA\\xa\\x0a\\x0A\"");
     }
@@ -318,33 +318,5 @@ public class TokenReaderStringLiteralTests
         Assert.AreEqual(MessageSeverity.Error, logged.Severity);
         Assert.AreEqual(MessageUtility.InvalidHexEscapeSequenceMessageId, logged.Id);
         Assert.AreEqual("Invalid hexadecimal escape sequence.", logged.Text);
-    }
-
-    private static TokenReader CreateTokenReader(
-        string input,
-        TestMessageLog log,
-        [CallerFilePath] string filePath = "",
-        [CallerLineNumber] int lineNumber = 0)
-    {
-        return new TokenReader(
-            new StringReader(input),
-            new SourceReference(filePath, lineNumber),
-            log.Log);
-    }
-
-    private static void SingleTokenCleanTest(
-        string expectedValue,
-        string input)
-    {
-        var log = new TestMessageLog();
-
-        TokenReader reader = CreateTokenReader(input, log);
-        var token = reader.Read();
-        Assert.IsNotNull(token);
-        Assert.IsInstanceOfType<StringLiteralToken>(token);
-        Assert.AreEqual(expectedValue, ((StringLiteralToken)token).Value);
-
-        Assert.IsNull(reader.Read());
-        log.AssertClean();
     }
 }

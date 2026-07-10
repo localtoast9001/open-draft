@@ -14,14 +14,17 @@ public class NumericLiteralToken : Token
     /// </summary>
     /// <param name="source">The source reference for this token.</param>
     /// <param name="value">The integer value of the numeric literal.</param>
+    /// <param name="unit">The unit of the numeric literal, if any.</param>
     public NumericLiteralToken(
         SourceReference source,
-        long value)
+        long value,
+        string? unit = null)
         : base(source)
     {
         this.IntegerValue = value;
         this.IsFloatingPoint = false;
         this.FloatingPointValue = default;
+        this.Unit = unit;
     }
 
     /// <summary>
@@ -29,14 +32,17 @@ public class NumericLiteralToken : Token
     /// </summary>
     /// <param name="source">The source reference for this token.</param>
     /// <param name="value">The floating-point value of the numeric literal.</param>
+    /// <param name="unit">The unit of the numeric literal, if any.</param>
     public NumericLiteralToken(
         SourceReference source,
-        double value)
+        decimal value,
+        string? unit = null)
         : base(source)
     {
         this.IntegerValue = default;
         this.IsFloatingPoint = true;
         this.FloatingPointValue = value;
+        this.Unit = unit;
     }
 
     /// <summary>
@@ -52,5 +58,10 @@ public class NumericLiteralToken : Token
     /// <summary>
     /// Gets the floating-point value of this numeric literal.
     /// </summary>
-    public double FloatingPointValue { get; }
+    public decimal FloatingPointValue { get; }
+
+    /// <summary>
+    /// Gets the unit of this numeric literal, if any.
+    /// </summary>
+    public string? Unit { get; }
 }

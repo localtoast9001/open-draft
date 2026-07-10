@@ -35,6 +35,21 @@ internal static class MessageUtility
     public static readonly MessageId InvalidHexEscapeSequenceMessageId = new MessageId(Constants.DefaultMessageCategory, 1004);
 
     /// <summary>
+    /// Represents the message id for an expected digit after exponent error message.
+    /// </summary>
+    public static readonly MessageId ExpectedDigitAfterExponentMessageId = new MessageId(Constants.DefaultMessageCategory, 1005);
+
+    /// <summary>
+    /// Represents the message id for an invalid unit specifier error message.
+    /// </summary>
+    public static readonly MessageId InvalidUnitSpecifierMessageId = new MessageId(Constants.DefaultMessageCategory, 1006);
+
+    /// <summary>
+    /// Represents the message id for an invalid number after radix specifier error message.
+    /// </summary>
+    public static readonly MessageId InvalidNumberAfterRadixSpecifierMessageId = new MessageId(Constants.DefaultMessageCategory, 1007);
+
+    /// <summary>
     /// Represents the message id for an unexpected end of file error message.
     /// </summary>
     public static readonly MessageId UnexpectedEndOfFileMessageId = new MessageId(Constants.DefaultMessageCategory, 2000);
@@ -104,6 +119,21 @@ internal static class MessageUtility
     }
 
     /// <summary>
+    /// Creates a message for an invalid unit specifier error.
+    /// </summary>
+    /// <param name="source">The source reference for the error.</param>
+    /// <param name="unit">The invalid unit specifier.</param>
+    /// <returns>The created message.</returns>
+    public static Message InvalidUnitSpecifier(SourceReference source, string unit)
+    {
+        return new Message(
+            MessageSeverity.Error,
+            InvalidUnitSpecifierMessageId,
+            source,
+            $"Invalid unit specifier '{unit}'.");
+    }
+
+    /// <summary>
     /// Creates a message for an unterminated multi-line comment error.
     /// </summary>
     /// <param name="source">The source reference for the error.</param>
@@ -144,6 +174,34 @@ internal static class MessageUtility
             InvalidHexEscapeSequenceMessageId,
             source,
             "Invalid hexadecimal escape sequence.");
+    }
+
+    /// <summary>
+    /// Creates a message for an expected digit after exponent error.
+    /// </summary>
+    /// <param name="source">The source reference for the error.</param>
+    /// <returns>The created message.</returns>
+    public static Message ExpectedDigitAfterExponent(SourceReference source)
+    {
+        return new Message(
+            MessageSeverity.Error,
+            ExpectedDigitAfterExponentMessageId,
+            source,
+            "Expected decimal value for exponent in numeric literal.");
+    }
+
+    /// <summary>
+    /// Creates a message for an invalid number after radix specifier error.
+    /// </summary>
+    /// <param name="source">The source reference for the error.</param>
+    /// <returns>The created message.</returns>
+    public static Message InvalidNumberAfterRadixSpecifier(SourceReference source)
+    {
+        return new Message(
+            MessageSeverity.Error,
+            InvalidNumberAfterRadixSpecifierMessageId,
+            source,
+            "Invalid number after radix specifier.");
     }
 
     /// <summary>
