@@ -29,7 +29,7 @@ public class Parser
     /// Parses an OpenDraft language file and produces a parse tree. The parse tree is represented as a hierarchy of <see cref="ParseNode"/> objects. If any errors occur during parsing, they are logged using the provided <see cref="Action{Message}"/>.
     /// </summary>
     /// <returns>The root node of the parse tree, or <c>null</c> if parsing fails.</returns>
-    public ParseNode? Parse()
+    public ProgramParseNode? Parse()
     {
         List<ImportParseNode> imports = new List<ImportParseNode>();
         List<ProgramElementParseNode> programElements = new List<ProgramElementParseNode>();
@@ -309,11 +309,6 @@ public class Parser
             return null;
         }
 
-        if (!this.Expect(Symbol.LeftParen))
-        {
-            return null;
-        }
-
         var parameters = this.ParseParameterDeclarations();
         if (parameters == null)
         {
@@ -480,7 +475,7 @@ public class Parser
 
         long? value = null;
         var token = this.Peek();
-        if (token != null && Is(token, Symbol.Equals))
+        if (token != null && Is(token, Symbol.Assignment))
         {
             this.Read();
             var valueToken = this.ExpectInteger();
@@ -569,7 +564,53 @@ public class Parser
 
     private StatementParseNode? ParseCoreStatement()
     {
-        throw new NotImplementedException();
+        var start = this.Peek();
+        if (start == null)
+        {
+            this.log(MessageUtility.UnexpectedEndOfFile(this.tokenReader.CurrentSource));
+            return null;
+        }
+
+        if (Is(start, Keyword.If))
+        {
+            return this.ParseIfStatement();
+        }
+
+        if (Is(start, Keyword.For))
+        {
+            return this.ParseForStatement();
+        }
+
+        if (Is(start, Keyword.Break))
+        {
+            return this.ParseBreakStatement();
+        }
+
+        if (Is(start, Keyword.Continue))
+        {
+            return this.ParseContinueStatement();
+        }
+
+        if (Is(start, Keyword.Return))
+        {
+            return this.ParseReturnStatement();
+        }
+
+        if (Is(start, Keyword.Throw))
+        {
+            return this.ParseThrowStatement();
+        }
+
+        if (Is(start, Keyword.Error) ||
+            Is(start, Keyword.Warn) ||
+            Is(start, Keyword.Info) ||
+            Is(start, Keyword.Verbose) ||
+            Is(start, Keyword.Debug))
+        {
+            return this.ParseTraceStatement();
+        }
+
+        return null;
     }
 
     private BlockStatementParseNode? ParseBlockStatement()
@@ -626,6 +667,298 @@ public class Parser
         }
     }
 
+    private StatementParseNode? ParseBreakStatement()
+    {
+        var start = this.Peek();
+        if (!this.Expect(Keyword.Break))
+        {
+            return null;
+        }
+
+        if (!this.Expect(Symbol.Semicolon))
+        {
+            return null;
+        }
+
+        return new BreakStatementParseNode(
+            start!.Token,
+            start!.PrecedingComments);
+    }
+
+    private StatementParseNode? ParseContinueStatement()
+    {
+        var start = this.Peek();
+        if (!this.Expect(Keyword.Continue))
+        {
+            return null;
+        }
+
+        if (!this.Expect(Symbol.Semicolon))
+        {
+            return null;
+        }
+
+        return new ContinueStatementParseNode(
+            start!.Token,
+            start!.PrecedingComments);
+    }
+
+    private StatementParseNode? ParseReturnStatement()
+    {
+        var start = this.Peek();
+        if (!this.Expect(Keyword.Return))
+        {
+            return null;
+        }
+
+        var expression = this.ParseExpression();
+        if (expression == null)
+        {
+            return null;
+        }
+
+        if (!this.Expect(Symbol.Semicolon))
+        {
+            return null;
+        }
+
+        return new ReturnStatementParseNode(
+            expression,
+            start!.Token,
+            start!.PrecedingComments);
+    }
+
+    private StatementParseNode? ParseIfStatement()
+    {
+        var start = this.Peek();
+        if (!this.Expect(Keyword.If))
+        {
+            return null;
+        }
+
+        if (!this.Expect(Symbol.LeftParen))
+        {
+            return null;
+        }
+
+        var condition = this.ParseExpression();
+        if (condition == null)
+        {
+            return null;
+        }
+
+        if (!this.Expect(Symbol.RightParen))
+        {
+            return null;
+        }
+
+        var thenStatement = this.ParseStatement();
+        if (thenStatement == null)
+        {
+            return null;
+        }
+
+        StatementParseNode? elseStatement = null;
+        var next = this.Peek();
+        if (next != null && Is(next, Keyword.Else))
+        {
+            this.Read();
+            elseStatement = this.ParseStatement();
+            if (elseStatement == null)
+            {
+                return null;
+            }
+        }
+
+        return new IfStatementParseNode(
+            condition,
+            thenStatement,
+            elseStatement,
+            start!.Token,
+            start!.PrecedingComments);
+    }
+
+    private StatementParseNode? ParseForStatement()
+    {
+        var start = this.Peek();
+        if (!this.Expect(Keyword.For))
+        {
+            return null;
+        }
+
+        if (!this.Expect(Symbol.LeftParen))
+        {
+            return null;
+        }
+
+        List<ForConditionParseNode> conditions = new List<ForConditionParseNode>();
+        var condition = this.ParseForCondition();
+        if (condition == null)
+        {
+            return null;
+        }
+
+        conditions.Add(condition);
+
+        var token = this.Peek();
+        while (token != null && Is(token, Symbol.Semicolon))
+        {
+            _ = this.Read();
+            condition = this.ParseForCondition();
+            if (condition == null)
+            {
+                return null;
+            }
+
+            conditions.Add(condition);
+            token = this.Peek();
+        }
+
+        if (!this.Expect(Symbol.RightParen))
+        {
+            return null;
+        }
+
+        var body = this.ParseStatement();
+        if (body == null)
+        {
+            return null;
+        }
+
+        return new ForStatementParseNode(
+            conditions,
+            body,
+            start!.Token,
+            start!.PrecedingComments);
+    }
+
+    private ForConditionParseNode? ParseForCondition()
+    {
+        var start = this.Peek();
+
+        var typeReference = this.ParseTypeReference();
+        if (typeReference == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        List<string> varNames = new List<string>();
+        if (token != null && token.Token is IdentifierToken identifierToken)
+        {
+            varNames.Add(identifierToken.Value);
+            _ = this.Read();
+            token = this.Peek();
+        }
+        else
+        {
+            if (typeReference.Names.Count != 1)
+            {
+                // TODO: error. - Missing variable name.
+                return null;
+            }
+
+            varNames.Add(typeReference.Names[0]);
+            typeReference = null;
+        }
+
+        while (token != null && Is(token, Symbol.Comma))
+        {
+            _ = this.Read();
+            var nextVarNameToken = this.ExpectIdentifier();
+            if (nextVarNameToken == null)
+            {
+                return null;
+            }
+
+            varNames.Add(nextVarNameToken.Value);
+            token = this.Peek();
+        }
+
+        if (!this.Expect(Symbol.Colon))
+        {
+            return null;
+        }
+
+        var expr = this.ParseExpression();
+        if (expr == null)
+        {
+            return null;
+        }
+
+        return new ForConditionParseNode(
+            varNames,
+            expr,
+            typeReference,
+            start!.Token,
+            start!.PrecedingComments);
+    }
+
+    private StatementParseNode? ParseThrowStatement()
+    {
+        var start = this.Peek();
+        if (!this.Expect(Keyword.Throw))
+        {
+            return null;
+        }
+
+        var expression = this.ParseExpression();
+        if (expression == null)
+        {
+            return null;
+        }
+
+        if (!this.Expect(Symbol.Semicolon))
+        {
+            return null;
+        }
+
+        return new ThrowStatementParseNode(
+            expression,
+            start!.Token,
+            start!.PrecedingComments);
+    }
+
+    private StatementParseNode? ParseTraceStatement()
+    {
+        var start = this.Peek();
+        if (start == null)
+        {
+            return null;
+        }
+
+        KeywordToken keywordToken = (KeywordToken)start.Token;
+        TraceStatementSeverity severity = keywordToken.Value switch
+        {
+            Keyword.Error => TraceStatementSeverity.Error,
+            Keyword.Warn => TraceStatementSeverity.Warn,
+            Keyword.Info => TraceStatementSeverity.Info,
+            Keyword.Verbose => TraceStatementSeverity.Verbose,
+            Keyword.Debug => TraceStatementSeverity.Debug,
+            _ => throw new InvalidOperationException("Internal Error: Invalid trace keyword."),
+        };
+
+        // Read the trace keyword (Error, Warn, Info, Verbose, Debug)
+        this.Read();
+
+        var expression = this.ParseExpression();
+        if (expression == null)
+        {
+            return null;
+        }
+
+        if (!this.Expect(Symbol.Semicolon))
+        {
+            return null;
+        }
+
+        return new TraceStatementParseNode(
+            severity,
+            expression,
+            start.Token,
+            start.PrecedingComments);
+    }
+
     private TypeReferenceParseNode? ParseTypeReference()
     {
         var nameList = new List<string>();
@@ -674,7 +1007,833 @@ public class Parser
 
     private ExpressionParseNode? ParseExpression()
     {
-        throw new NotImplementedException();
+        var inner = this.ParseLogicalOrExpression();
+        if (inner == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        if (token != null && Is(token, Symbol.Question))
+        {
+            this.Read();
+            var trueExpression = this.ParseExpression();
+            if (trueExpression == null)
+            {
+                return null;
+            }
+
+            if (!this.Expect(Symbol.Colon))
+            {
+                return null;
+            }
+
+            var falseExpression = this.ParseExpression();
+            if (falseExpression == null)
+            {
+                return null;
+            }
+
+            return new ConditionalExpressionParseNode(
+                inner!,
+                trueExpression,
+                falseExpression,
+                inner!.Start,
+                inner.PrecedingComments);
+        }
+
+        return inner;
+    }
+
+    private ExpressionParseNode? ParseLogicalOrExpression()
+    {
+        var term = this.ParseLogicalAndExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        while (token != null && Is(token, Symbol.DoublePipe))
+        {
+            this.Read();
+            var nextTerm = this.ParseLogicalAndExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            term = new LogicalOrExpressionParseNode(
+                term,
+                nextTerm,
+                term.Start,
+                term.PrecedingComments);
+            token = this.Peek();
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseLogicalAndExpression()
+    {
+        var term = this.ParseBitwiseOrExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        while (token != null && Is(token, Symbol.DoubleAmpersand))
+        {
+            this.Read();
+            var nextTerm = this.ParseBitwiseOrExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            term = new LogicalAndExpressionParseNode(
+                term,
+                nextTerm,
+                term.Start,
+                term.PrecedingComments);
+            token = this.Peek();
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseBitwiseOrExpression()
+    {
+        var term = this.ParseBitwiseXorExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        while (token != null && Is(token, Symbol.Pipe))
+        {
+            this.Read();
+            var nextTerm = this.ParseBitwiseXorExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            term = new BitwiseOrExpressionParseNode(
+                term,
+                nextTerm,
+                term.Start,
+                term.PrecedingComments);
+            token = this.Peek();
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseBitwiseXorExpression()
+    {
+        var term = this.ParseBitwiseAndExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        while (token != null && Is(token, Symbol.Caret))
+        {
+            this.Read();
+            var nextTerm = this.ParseBitwiseAndExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            term = new BitwiseXorExpressionParseNode(
+                term,
+                nextTerm,
+                term.Start,
+                term.PrecedingComments);
+            token = this.Peek();
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseBitwiseAndExpression()
+    {
+        var term = this.ParseEqualityExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        while (token != null && Is(token, Symbol.Ampersand))
+        {
+            this.Read();
+            var nextTerm = this.ParseEqualityExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            term = new BitwiseAndExpressionParseNode(
+                term,
+                nextTerm,
+                term.Start,
+                term.PrecedingComments);
+            token = this.Peek();
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseEqualityExpression()
+    {
+        var term = this.ParseRelationalExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        while (token != null &&
+            (Is(token, Symbol.Equals) ||
+            Is(token, Symbol.NotEquals)))
+        {
+            var symbolToken = (SymbolToken)token.Token;
+            this.Read();
+            var nextTerm = this.ParseRelationalExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            var isInequality = symbolToken.Value == Symbol.NotEquals;
+            term = new EqualityExpressionParseNode(
+                term,
+                nextTerm,
+                isInequality,
+                term.Start,
+                term.PrecedingComments);
+            token = this.Peek();
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseRelationalExpression()
+    {
+        var term = this.ParseShiftExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        while (token != null &&
+            (Is(token, Symbol.LessThan) ||
+            Is(token, Symbol.LessThanOrEqual) ||
+            Is(token, Symbol.GreaterThan) ||
+            Is(token, Symbol.GreaterThanOrEqual) ||
+            Is(token, Keyword.In)))
+        {
+            this.Read();
+            var op = RelationalOperator.InSet;
+            if (!Is(token, Keyword.In))
+            {
+                var symbolToken = (SymbolToken)token.Token;
+                op = symbolToken.Value switch
+                {
+                    Symbol.LessThan => RelationalOperator.LessThan,
+                    Symbol.LessThanOrEqual => RelationalOperator.LessThanOrEqual,
+                    Symbol.GreaterThan => RelationalOperator.GreaterThan,
+                    _ => RelationalOperator.GreaterThanOrEqual,
+                };
+            }
+
+            var nextTerm = this.ParseShiftExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            term = new RelationalExpressionParseNode(
+                term,
+                nextTerm,
+                op,
+                term.Start,
+                term.PrecedingComments);
+            token = this.Peek();
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseShiftExpression()
+    {
+        var term = this.ParseAddExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        while (token != null &&
+            (Is(token, Symbol.DoubleLessThan) ||
+            Is(token, Symbol.DoubleGreaterThan)))
+        {
+            var symbolToken = (SymbolToken)token.Token;
+            this.Read();
+            var nextTerm = this.ParseAddExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            var op = symbolToken.Value == Symbol.DoubleLessThan
+                ? ShiftOperator.LeftShift
+                : ShiftOperator.RightShift;
+
+            term = new ShiftExpressionParseNode(
+                term,
+                nextTerm,
+                op,
+                term.Start,
+                term.PrecedingComments);
+            token = this.Peek();
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseAddExpression()
+    {
+        var term = this.ParseMultiplyExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        while (token != null &&
+            (Is(token, Symbol.Plus) ||
+            Is(token, Symbol.Minus)))
+        {
+            var symbolToken = (SymbolToken)token.Token;
+            this.Read();
+            var nextTerm = this.ParseMultiplyExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            var isMinus = symbolToken.Value == Symbol.Minus;
+
+            term = new AddExpressionParseNode(
+                term,
+                nextTerm,
+                isMinus,
+                term.Start,
+                term.PrecedingComments);
+            token = this.Peek();
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseMultiplyExpression()
+    {
+        var term = this.ParseRangeExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        while (token != null &&
+            (Is(token, Symbol.Asterisk) ||
+            Is(token, Symbol.Slash) ||
+            Is(token, Symbol.Modulus)))
+        {
+            var symbolToken = (SymbolToken)token.Token;
+            this.Read();
+            var nextTerm = this.ParseRangeExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            var op = symbolToken.Value == Symbol.Asterisk
+                ? MulOperator.Multiply
+                : symbolToken.Value == Symbol.Slash
+                    ? MulOperator.Divide
+                    : MulOperator.Modulo;
+
+            term = new MulExpressionParseNode(
+                term,
+                nextTerm,
+                op,
+                term.Start,
+                term.PrecedingComments);
+            token = this.Peek();
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseRangeExpression()
+    {
+        var term = this.ParseUnaryExpression();
+        if (term == null)
+        {
+            return null;
+        }
+
+        var token = this.Peek();
+        if (token != null && Is(token, Symbol.Range))
+        {
+            this.Read();
+            var nextTerm = this.ParseUnaryExpression();
+            if (nextTerm == null)
+            {
+                return null;
+            }
+
+            term = new RangeExpressionParseNode(
+                term,
+                nextTerm,
+                term.Start,
+                term.PrecedingComments);
+        }
+
+        return term;
+    }
+
+    private ExpressionParseNode? ParseUnaryExpression()
+    {
+        var token = this.Peek();
+        if (token == null)
+        {
+            return null;
+        }
+
+        // Handle unary operators here (e.g., +, -, !, ~)
+        if (Is(token, Symbol.Plus) ||
+            Is(token, Symbol.Minus) ||
+            Is(token, Symbol.Bang) ||
+            Is(token, Symbol.Tilde))
+        {
+            var symbolToken = (SymbolToken)token.Token;
+            this.Read();
+            UnaryOperator? op = symbolToken.Value switch
+            {
+                Symbol.Minus => UnaryOperator.Negate,
+                Symbol.Bang => UnaryOperator.LogicalNot,
+                Symbol.Tilde => UnaryOperator.BitwiseNot,
+                _ => null,
+            };
+
+            var operand = this.ParseUnaryExpression();
+            if (operand == null)
+            {
+                return null;
+            }
+
+            if (op == null)
+            {
+                return operand;
+            }
+
+            return new UnaryExpressionParseNode(
+                operand,
+                op.Value,
+                token.Token,
+                token.PrecedingComments);
+        }
+
+        if (Is(token, Symbol.LeftParen))
+        {
+            _ = this.Read();
+            var inner = this.ParseExpression();
+            if (!this.Expect(Symbol.RightParen))
+            {
+                return null;
+            }
+
+            return inner;
+        }
+
+        if (Is(token, Symbol.LeftBracket))
+        {
+            return this.ParseArrayExpression();
+        }
+
+        if (Is(token, Symbol.LeftBrace))
+        {
+            return this.ParseObjectExpression();
+        }
+
+        if (Is(token, Keyword.True))
+        {
+            _ = this.Read();
+            return new LiteralExpressionParseNode<bool>(
+                true,
+                token.Token,
+                token.PrecedingComments);
+        }
+
+        if (Is(token, Keyword.False))
+        {
+            _ = this.Read();
+            return new LiteralExpressionParseNode<bool>(
+                false,
+                token.Token,
+                token.PrecedingComments);
+        }
+
+        if (Is(token, Keyword.Null))
+        {
+            _ = this.Read();
+            return new NullExpressionParseNode(token.Token, token.PrecedingComments);
+        }
+
+        if (token.Token is StringLiteralToken stringLiteralToken)
+        {
+            _ = this.Read();
+            return new LiteralExpressionParseNode<string>(
+                stringLiteralToken.Value,
+                token.Token,
+                token.PrecedingComments);
+        }
+
+        if (token.Token is NumericLiteralToken numericLiteralToken)
+        {
+            _ = this.Read();
+            if (numericLiteralToken.IsFloatingPoint)
+            {
+                return new LiteralExpressionParseNode<decimal>(
+                    numericLiteralToken.FloatingPointValue,
+                    token.Token,
+                    token.PrecedingComments);
+            }
+
+            return new LiteralExpressionParseNode<long>(
+                numericLiteralToken.IntegerValue,
+                token.Token,
+                token.PrecedingComments);
+        }
+
+        return this.ParseReferenceExpression();
+    }
+
+    private ExpressionParseNode? ParseArrayExpression()
+    {
+        var start = this.Peek();
+        if (!this.Expect(Symbol.LeftBracket))
+        {
+            return null;
+        }
+
+        var elements = new List<ExpressionParseNode>();
+        var token = this.Peek();
+        while (token != null && !Is(token, Symbol.RightBracket))
+        {
+            var element = this.ParseExpression();
+            if (element == null)
+            {
+                return null;
+            }
+
+            elements.Add(element);
+
+            token = this.Peek();
+            if (token != null && Is(token, Symbol.Comma))
+            {
+                _ = this.Read();
+                token = this.Peek();
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (!this.Expect(Symbol.RightBracket))
+        {
+            return null;
+        }
+
+        return new ArrayExpressionParseNode(
+            elements,
+            start!.Token,
+            start.PrecedingComments);
+    }
+
+    private ExpressionParseNode? ParseObjectExpression()
+    {
+        var start = this.Peek();
+        if (!this.Expect(Symbol.LeftBrace))
+        {
+            return null;
+        }
+
+        var members = new List<ObjectMemberParseNode>();
+        var token = this.Peek();
+        while (token != null && !Is(token, Symbol.RightBrace))
+        {
+            var member = this.ParseObjectMember();
+            if (member == null)
+            {
+                return null;
+            }
+
+            members.Add(member);
+
+            token = this.Peek();
+            if (token != null && Is(token, Symbol.Comma))
+            {
+                _ = this.Read();
+                token = this.Peek();
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (!this.Expect(Symbol.RightBrace))
+        {
+            return null;
+        }
+
+        return new ObjectExpressionParseNode(
+            members,
+            start!.Token,
+            start.PrecedingComments);
+    }
+
+    private ObjectMemberParseNode? ParseObjectMember()
+    {
+        var start = this.Peek();
+        IdentifierToken? identifier = this.ExpectIdentifier();
+        if (identifier == null)
+        {
+            return null;
+        }
+
+        if (!this.Expect(Symbol.Assignment))
+        {
+            return null;
+        }
+
+        var value = this.ParseExpression();
+        if (value == null)
+        {
+            return null;
+        }
+
+        return new ObjectMemberParseNode(
+            identifier.Value,
+            value,
+            start!.Token,
+            start.PrecedingComments);
+    }
+
+    private ExpressionParseNode? ParseReferenceExpression()
+    {
+        var start = this.Peek();
+        IdentifierToken? identifier = this.ExpectIdentifier();
+        if (identifier == null)
+        {
+            return null;
+        }
+
+        ReferenceExpressionParseNode result = new VariableReferenceParseNode(
+            identifier.Value,
+            start!.Token,
+            start.PrecedingComments);
+
+        var token = this.Peek();
+        while (token != null &&
+            (Is(token, Symbol.Dot) ||
+            Is(token, Symbol.LeftBracket) ||
+            Is(token, Symbol.LeftParen)))
+        {
+            Symbol symbol = ((SymbolToken)token.Token).Value;
+            switch (symbol)
+            {
+                case Symbol.Dot:
+                    {
+                        var member = this.ParseMemberReference(result);
+                        if (member == null)
+                        {
+                            return null;
+                        }
+
+                        result = member;
+                    }
+
+                    break;
+                case Symbol.LeftBracket:
+                    {
+                        var index = this.ParseIndexExpression(result);
+                        if (index == null)
+                        {
+                            return null;
+                        }
+
+                        result = index;
+                    }
+
+                    break;
+                case Symbol.LeftParen:
+                    {
+                        var call = this.ParseCallExpression(result);
+                        if (call == null)
+                        {
+                            return null;
+                        }
+
+                        result = call;
+                    }
+
+                    break;
+            }
+
+            token = this.Peek();
+        }
+
+        return result;
+    }
+
+    private ReferenceExpressionParseNode? ParseMemberReference(
+        ReferenceExpressionParseNode target)
+    {
+        var start = this.Peek();
+        if (!this.Expect(Symbol.Dot))
+        {
+            return null;
+        }
+
+        var memberName = this.ExpectIdentifier();
+        if (memberName == null)
+        {
+            return null;
+        }
+
+        return new MemberReferenceExpressionParseNode(
+            target,
+            memberName.Value,
+            start!.Token,
+            start.PrecedingComments);
+    }
+
+    private ReferenceExpressionParseNode? ParseIndexExpression(
+        ReferenceExpressionParseNode target)
+    {
+        var start = this.Peek();
+        if (!this.Expect(Symbol.LeftBracket))
+        {
+            return null;
+        }
+
+        var index = this.ParseExpression();
+        if (index == null)
+        {
+            return null;
+        }
+
+        if (!this.Expect(Symbol.RightBracket))
+        {
+            return null;
+        }
+
+        return new IndexExpressionParseNode(
+            target,
+            index,
+            start!.Token,
+            start.PrecedingComments);
+    }
+
+    private ReferenceExpressionParseNode? ParseCallExpression(
+        ReferenceExpressionParseNode target)
+    {
+        var start = this.Peek();
+        if (!this.Expect(Symbol.LeftParen))
+        {
+            return null;
+        }
+
+        var arguments = new List<ArgumentParseNode>();
+        var token = this.Peek();
+        while (token != null && !Is(token, Symbol.RightParen))
+        {
+            var argument = this.ParseArgument();
+            if (argument == null)
+            {
+                return null;
+            }
+
+            arguments.Add(argument);
+
+            token = this.Peek();
+            if (token != null && Is(token, Symbol.Comma))
+            {
+                this.Read();
+                token = this.Peek();
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (!this.Expect(Symbol.RightParen))
+        {
+            return null;
+        }
+
+        return new CallExpressionParseNode(
+            target,
+            arguments,
+            start!.Token,
+            start.PrecedingComments);
+    }
+
+    private ArgumentParseNode? ParseArgument()
+    {
+        var start = this.Peek();
+        var expr = this.ParseExpression();
+        if (expr == null)
+        {
+            return null;
+        }
+
+        string? name = null;
+        if (expr is VariableReferenceParseNode variableReference)
+        {
+            var token = this.Peek();
+            if (token != null && Is(token, Symbol.Assignment))
+            {
+                _ = this.Read();
+                expr = this.ParseExpression();
+                if (expr == null)
+                {
+                    return null;
+                }
+
+                name = variableReference.Name;
+            }
+        }
+
+        return new ArgumentParseNode(
+            name,
+            expr,
+            start!.Token,
+            start.PrecedingComments);
     }
 
     /// <summary>

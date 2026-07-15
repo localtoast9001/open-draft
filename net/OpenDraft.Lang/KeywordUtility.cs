@@ -18,11 +18,29 @@ internal static class KeywordUtility
     {
         return text switch
         {
+            "break" => Keyword.Break,
             "class" => Keyword.Class,
-            "interface" => Keyword.Interface,
+            "continue" => Keyword.Continue,
+            "debug" => Keyword.Debug,
+            "else" => Keyword.Else,
             "enum" => Keyword.Enum,
-            "if" => Keyword.If,
+            "error" => Keyword.Error,
+            "false" => Keyword.False,
             "for" => Keyword.For,
+            "function" => Keyword.Function,
+            "if" => Keyword.If,
+            "import" => Keyword.Import,
+            "info" => Keyword.Info,
+            "interface" => Keyword.Interface,
+            "namespace" => Keyword.Namespace,
+            "null" => Keyword.Null,
+            "return" => Keyword.Return,
+            "static" => Keyword.Static,
+            "template" => Keyword.Template,
+            "throw" => Keyword.Throw,
+            "true" => Keyword.True,
+            "verbose" => Keyword.Verbose,
+            "warn" => Keyword.Warn,
             _ => Keyword.None,
         };
     }

@@ -231,112 +231,171 @@ public class TokenReader : IDisposable
             }
         }
 
+        return this.ReadSymbol();
+    }
+
+    private Token? ReadSymbol()
+    {
+        var startSourceRef = this.CurrentSource;
+        var ch = this.PeekChar();
+
         switch (ch)
         {
             case '(':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    new SourceReference(
-                        this.startSource.Path,
-                        lineStart,
-                        columnStart,
-                        this.line,
-                        this.column),
+                    startSourceRef,
                     Symbol.LeftParen);
             case ')':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    new SourceReference(
-                        this.startSource.Path,
-                        lineStart,
-                        columnStart,
-                        this.line,
-                        this.column),
+                    startSourceRef,
                     Symbol.RightParen);
             case '[':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    new SourceReference(
-                        this.startSource.Path,
-                        lineStart,
-                        columnStart,
-                        this.line,
-                        this.column),
+                    startSourceRef,
                     Symbol.LeftBracket);
             case ']':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    new SourceReference(
-                        this.startSource.Path,
-                        lineStart,
-                        columnStart,
-                        this.line,
-                        this.column),
+                    startSourceRef,
                     Symbol.RightBracket);
             case ';':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    this.GetTokenSource(lineStart, columnStart),
+                    startSourceRef,
                     Symbol.Semicolon);
             case ',':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    this.GetTokenSource(lineStart, columnStart),
+                    startSourceRef,
                     Symbol.Comma);
             case '+':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    this.GetTokenSource(lineStart, columnStart),
+                    startSourceRef,
                     Symbol.Plus);
             case '-':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    this.GetTokenSource(lineStart, columnStart),
+                    startSourceRef,
                     Symbol.Minus);
             case '*':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    this.GetTokenSource(lineStart, columnStart),
+                    startSourceRef,
                     Symbol.Asterisk);
             case '{':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    this.GetTokenSource(lineStart, columnStart),
+                    startSourceRef,
                     Symbol.LeftBrace);
             case '}':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    new SourceReference(
-                        this.startSource.Path,
-                        lineStart,
-                        columnStart,
-                        this.line,
-                        this.column),
+                    startSourceRef,
                     Symbol.RightBrace);
             case '^':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    new SourceReference(
-                        this.startSource.Path,
-                        lineStart,
-                        columnStart,
-                        this.line,
-                        this.column),
+                    startSourceRef,
                     Symbol.Caret);
             case '%':
                 _ = this.ReadChar();
                 return new SymbolToken(
-                    new SourceReference(
-                        this.startSource.Path,
-                        lineStart,
-                        columnStart,
-                        this.line,
-                        this.column),
+                    startSourceRef,
                     Symbol.Modulus);
+            case '!':
+                {
+                    _ = this.ReadChar();
+                    ch = this.PeekChar();
+                    if (ch == '=')
+                    {
+                        _ = this.ReadChar();
+                        return new SymbolToken(
+                            startSourceRef,
+                            Symbol.NotEquals);
+                    }
+
+                    return new SymbolToken(
+                        startSourceRef,
+                        Symbol.Bang);
+                }
+
+            case '=':
+                {
+                    _ = this.ReadChar();
+                    ch = this.PeekChar();
+                    if (ch == '=')
+                    {
+                        _ = this.ReadChar();
+                        return new SymbolToken(
+                            startSourceRef,
+                            Symbol.Equals);
+                    }
+
+                    return new SymbolToken(
+                        startSourceRef,
+                        Symbol.Assignment);
+                }
+
+            case '<':
+                {
+                    _ = this.ReadChar();
+                    ch = this.PeekChar();
+                    if (ch == '=')
+                    {
+                        _ = this.ReadChar();
+                        return new SymbolToken(
+                            startSourceRef,
+                            Symbol.LessThanOrEqual);
+                    }
+
+                    return new SymbolToken(
+                        startSourceRef,
+                        Symbol.LessThan);
+                }
+
+            case '>':
+                {
+                    _ = this.ReadChar();
+                    ch = this.PeekChar();
+                    if (ch == '=')
+                    {
+                        _ = this.ReadChar();
+                        return new SymbolToken(
+                            startSourceRef,
+                            Symbol.GreaterThanOrEqual);
+                    }
+
+                    return new SymbolToken(
+                        startSourceRef,
+                        Symbol.GreaterThan);
+                }
+
+            case '?':
+                {
+                    _ = this.ReadChar();
+                    ch = this.PeekChar();
+                    if (ch == '?')
+                    {
+                        _ = this.ReadChar();
+                        return new SymbolToken(
+                            startSourceRef,
+                            Symbol.DoubleQuestion);
+                    }
+
+                    return new SymbolToken(
+                        startSourceRef,
+                        Symbol.Question);
+                }
+
             default:
                 break;
         }
 
+        this.log(MessageUtility.InvalidCharacter(this.CurrentSource, (char)ch));
         return null;
     }
 
