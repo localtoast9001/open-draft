@@ -85,6 +85,11 @@ internal static class MessageUtility
     public static readonly MessageId IntegerLiteralExpectedMessageId = new MessageId(Constants.DefaultMessageCategory, 2006);
 
     /// <summary>
+    /// Represents the message id for when a variable name is expected after a type.
+    /// </summary>
+    public static readonly MessageId VariableNameExpectedAfterTypeMessageId = new MessageId(Constants.DefaultMessageCategory, 2007);
+
+    /// <summary>
     /// Represents the message id for an unexpected token error message.
     /// </summary>
     public static readonly MessageId UnexpectedTokenMessageId = new MessageId(Constants.DefaultMessageCategory, 2100);
@@ -322,6 +327,23 @@ internal static class MessageUtility
             IntegerLiteralExpectedMessageId,
             token?.Source ?? fileSource,
             $"Expected integer literal, but found '{token?.ToString() ?? "end of file"}' which is not an integer literal.");
+    }
+
+    /// <summary>
+    /// Creates a message for a variable name expected after type error.
+    /// </summary>
+    /// <param name="token">The token that caused the error.</param>
+    /// <param name="fileSource">The source reference for the file being parsed, used if the token is null.</param>
+    /// <returns>The created message.</returns>
+    public static Message VariableNameExpectedAfterType(
+        Token? token,
+        SourceReference fileSource)
+    {
+        return new Message(
+            MessageSeverity.Error,
+            VariableNameExpectedAfterTypeMessageId,
+            token?.Source ?? fileSource,
+            $"Expected variable name after type, but found '{token?.ToString() ?? "end of file"}'.");
     }
 
     /// <summary>
