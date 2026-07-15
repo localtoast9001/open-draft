@@ -138,4 +138,49 @@ public enum Symbol
     /// Represents the '~' symbol.
     /// </summary>
     Tilde,
+
+    /// <summary>
+    /// Represents the '?' symbol.
+    /// </summary>
+    Question,
+
+    /// <summary>
+    /// Represents the '|' symbol.
+    /// </summary>
+    Pipe,
+
+    /// <summary>
+    /// Represents the '||' symbol.
+    /// </summary>
+    DoublePipe,
+
+    /// <summary>
+    /// Represents the '&amp;' symbol.
+    /// </summary>
+    Ampersand,
+
+    /// <summary>
+    /// Represents the '&amp;&amp;' symbol.
+    /// </summary>
+    DoubleAmpersand,
+
+    /// <summary>
+    /// Represents the '!' symbol.
+    /// </summary>
+    Bang,
+
+    /// <summary>
+    /// Represents the '??' symbol.
+    /// </summary>
+    DoubleQuestion,
+
+    /// <summary>
+    /// Represents the '&lt;&lt;' symbol.
+    /// </summary>
+    DoubleLessThan,
+
+    /// <summary>
+    /// Represents the '&gt;&gt;' symbol.
+    /// </summary>
+    DoubleGreaterThan,
 }

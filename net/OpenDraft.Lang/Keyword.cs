@@ -15,9 +15,29 @@ public enum Keyword
     None = 0,
 
     /// <summary>
+    /// Represents the 'break' keyword.
+    /// </summary>
+    Break,
+
+    /// <summary>
     /// Represents the 'class' keyword.
     /// </summary>
     @Class,
+
+    /// <summary>
+    /// Represents the 'continue' keyword.
+    /// </summary>
+    Continue,
+
+    /// <summary>
+    /// Represents the 'debug' keyword.
+    /// </summary>
+    Debug,
+
+    /// <summary>
+    /// Represents the 'else' keyword.
+    /// </summary>
+    Else,
 
     /// <summary>
     /// Represents the 'enum' keyword.
@@ -25,9 +45,29 @@ public enum Keyword
     @Enum,
 
     /// <summary>
+    /// Represents the 'error' keyword.
+    /// </summary>
+    Error,
+
+    /// <summary>
+    /// Represents the 'false' keyword.
+    /// </summary>
+    False,
+
+    /// <summary>
+    /// Represents the 'for' keyword.
+    /// </summary>
+    For,
+
+    /// <summary>
     /// Represents the 'function' keyword.
     /// </summary>
     Function,
+
+    /// <summary>
+    /// Represents the 'if' keyword.
+    /// </summary>
+    If,
 
     /// <summary>
     /// Represents the 'import' keyword.
@@ -35,22 +75,62 @@ public enum Keyword
     Import,
 
     /// <summary>
+    /// Represents the 'in' keyword.
+    /// </summary>
+    In,
+
+    /// <summary>
+    /// Represents the 'info' keyword.
+    /// </summary>
+    Info,
+
+    /// <summary>
     /// Represents the 'interface' keyword.
     /// </summary>
     @Interface,
 
     /// <summary>
-    /// Represents the 'if' keyword.
+    /// Represents the 'namespace' keyword.
     /// </summary>
-    @If,
+    Namespace,
 
     /// <summary>
-    /// Represents the 'for' keyword.
+    /// Represents the 'null' keyword.
     /// </summary>
-    @For,
+    Null,
+
+    /// <summary>
+    /// Represents the 'return' keyword.
+    /// </summary>
+    Return,
+
+    /// <summary>
+    /// Represents the 'static' keyword.
+    /// </summary>
+    Static,
 
     /// <summary>
     /// Represents the 'template' keyword.
     /// </summary>
     Template,
+
+    /// <summary>
+    /// Represents the 'throw' keyword.
+    /// </summary>
+    Throw,
+
+    /// <summary>
+    /// Represents the 'true' keyword.
+    /// </summary>
+    True,
+
+    /// <summary>
+    /// Represents the 'verbose' keyword.
+    /// </summary>
+    Verbose,
+
+    /// <summary>
+    /// Represents the 'warn' keyword.
+    /// </summary>
+    Warn,
 }

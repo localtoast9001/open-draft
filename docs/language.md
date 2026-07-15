@@ -78,6 +78,7 @@ These are reserved words that cannot be used as identifiers.
 `class` - defines a new class type.  
 `continue` - continue statement.  
 `debug` - debug trace statement.  
+`else` - else statement.  
 `enum` - defines a new enumeration type.  
 `error` - error trace statement.  
 `false` - literal for a false boolean value.  
@@ -85,6 +86,7 @@ These are reserved words that cannot be used as identifiers.
 `function` - defines a function.  
 `if` - if statement.  
 `import` - imports a module.  
+`in` - Used to determine if a value is within a set or range.
 `info` - info trace statement.
 `interface` - defines an interface.     
 `namespace` - namespace declaration.  
@@ -128,7 +130,7 @@ These sequences of symbols have distinct meaning as tokens.
 `<<` - shift left operator.  
 `>>` - shift right operator.  
 `?` - start of a conditional operator.  
-`??` - reserved.  
+`??` - reserved (null/default coalescing operator).  
 `.` - scoping operator.  
 `..` - range operator.  
 `!` - logical inverse.  
@@ -148,7 +150,7 @@ _program_ ::= *import_statement* * *program_element* *
     *template_definition* |  
     *core_statement*
     
-*namespace_definition* ::= `namespace` _identifier_ `{` *program_element* * `}`
+*namespace_definition* ::= `namespace` _identifier_ `{` *program_element* * `}`  
 
 ### Enum Definition
 *enum_definition* ::=  `enum` _identifier_ `{` *enum_val* ( `,` *enum_val* )* `}`  
@@ -159,8 +161,8 @@ _program_ ::= *import_statement* * *program_element* *
 *base_and_interface_list* ::= *type_reference* ( `,` *type_reference* )*  
 *class_member* ::= [ `static` ] ( *class_variable* | *class_function* | *class_template* )  
 *class_variable* ::= [ *type_reference* ] _identifier_ [ `=` _expression_ ] `;`  
-*class_function* ::= `function` _identifier_ *parameters_declaration* *statement*  
-*class_template* ::= `template` _identifier_ *parameters_declaration* *statement*  
+*class_function* ::= `function` _identifier_ *parameters_declaration* *block_statement*  
+*class_template* ::= `template` _identifier_ *parameters_declaration* *block_statement*  
 
 ### Interface Definition
 
@@ -171,9 +173,9 @@ _program_ ::= *import_statement* * *program_element* *
 
 ### Function and Template Definitions
 
-*function_definition* ::= `function` _identifier_ *parameters_declaration* *statement*
+*function_definition* ::= `function` _identifier_ *parameters_declaration* *block_statement*
 
-*template_definition* ::= `template` _identifier_ *parameters_declaration* *statement*  
+*template_definition* ::= `template` _identifier_ *parameters_declaration* *block_statement*  
 
 *parameters_declaration* ::= `(` _e_ | ( *parameter_declaration* ( `,` *parameter_declaration* )* ) `)`  
 *parameter_declaration* ::= [ *type_reference* ] _identifier_ [ `=` _expression_ ]  
@@ -192,19 +194,19 @@ _statement_ ::= *block_statement* | *core_statement*
     *assign_statement* |  
     *call_statement* |  
     *throw_statement* |  
-    *trace_statement* |     
-    `;`
+    *trace_statement* |  
+    `;`   
 
 *if_statement* ::= `if` `(` *expression* `)` _statement_ [ `else` _statement_ ]  
-*for_statement* ::= `for` `(` *for_condition* [ `,` *for_condition* ]* `)` _statement_  
+*for_statement* ::= `for` `(` *for_condition* [ `;` *for_condition* ]* `)` _statement_  
 *for_condition* ::= [ *type_reference* ] _identifier_ [ `,` _identifier_ ]* `:` _expression_
-*break_statement* ::= `break` `;`  
-*continue_statement* ::= `continue` `;`  
-*return_statement* ::= `return` [ _expression_ ] `;`  
-*assign_statement* ::= [ *type_reference* ] _identifier_ `=` _expression_ `;`    
-*call_statement* ::= *reference_expression* `(` *argument_list* `)` `;`  
-*throw_statement* ::= `throw` _expression_ `;`  
-*trace_statement* ::= ( `error` | `warn` | `info` | `verbose` | `debug` ) _expression_ `;`    
+*break_statement* ::= `break` `;` 
+*continue_statement* ::= `continue` `;` 
+*return_statement* ::= `return` [ _expression_ ] `;`   
+*assign_statement* ::= [ *type_reference* ] _identifier_ `=` _expression_ `;`  
+*call_statement* ::= *reference_expression* `(` *argument_list* `)` `;` 
+*throw_statement* ::= `throw` _expression_ `;` 
+*trace_statement* ::= ( `error` | `warn` | `info` | `verbose` | `debug` ) _expression_  `;`
 
 ### Expressions
 *type_reference* ::= _identifier_ [ `.` _identifier_ ]*
@@ -223,13 +225,15 @@ _statement_ ::= *block_statement* | *core_statement*
 *unary_expression* ::= ( ( `-` | `+` | `!` | `~` ) *unary_expression* ) | *paren_expression* | *reference_expression* | *literal_expression* | *array_expression* | *object_expression*    
 *paren_expression* ::= `(` _expression_ `)`  
 *literal_expression* ::= `true` | `false` | `null` | *numeric_literal* | *string_literal*  
-*array_expression* ::= `[` _expression_ [ `,` _expression_ ]* `]`  
-*object_expression* ::= `{` *obj_member* [ `,` *obj_member* ]* `}`
+*array_expression* ::= `[` _e_ | ( _expression_ [ `,` _expression_ ]* ) `]`  
+*object_expression* ::= `{` _e_ | ( *obj_member* [ `,` *obj_member* ]* ) `}`
 *reference_expression* ::= _identifier_ | *member_reference* | *array_index* | *call_expression*  
 *member_reference* ::= *reference_expression* `.` _identifier_  
 *array_index* ::= *reference_expression* `[` *expression* `]`  
 *call_expression* ::= *reference_expression* `(` *argument_list* `)`  
 *obj_member* ::= _identifier_ `=` _expression_  
+*argument_list* ::= _e_ | ( _argument_ ( `,` _argument_ )* )  
+*argument* ::= [ _identifier_ `=` ] _expression_  
 
 ## Messages
 These are the messages, with specific codes and severity, that should be produced by any compiler or interpreter implementation of the language.  

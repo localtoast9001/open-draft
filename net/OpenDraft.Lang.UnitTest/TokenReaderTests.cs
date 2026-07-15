@@ -168,4 +168,40 @@ public class TokenReaderTests
         var keyword = (KeywordToken)token;
         Assert.AreEqual(Keyword.Class, keyword.Value);
     }
+
+    /// <summary>
+    /// Tests that a sequence of symbols delimited by a specific character is read correctly.
+    /// </summary>
+    [TestMethod]
+    public void ReadSymbolDelimitedSequence()
+    {
+        TestMessageLog log = new TestMessageLog();
+        var target = CreateReader(log, "a = 1; return b + 5;");
+        List<Token> actual = new();
+        Token? token;
+        while ((token = target.Read()) != null)
+        {
+            actual.Add(token);
+        }
+
+        // Assert
+        Assert.HasCount(9, actual);
+        Assert.IsInstanceOfType(actual[0], typeof(IdentifierToken));
+        Assert.IsInstanceOfType(actual[1], typeof(SymbolToken));
+        Assert.IsInstanceOfType(actual[2], typeof(NumericLiteralToken));
+        Assert.IsInstanceOfType(actual[3], typeof(SymbolToken));
+        Assert.IsInstanceOfType(actual[4], typeof(KeywordToken));
+        Assert.IsInstanceOfType(actual[5], typeof(IdentifierToken));
+        Assert.IsInstanceOfType(actual[6], typeof(SymbolToken));
+        Assert.IsInstanceOfType(actual[7], typeof(NumericLiteralToken));
+        Assert.IsInstanceOfType(actual[8], typeof(SymbolToken));
+    }
+
+    private static TokenReader CreateReader(TestMessageLog log, string text)
+    {
+        return new TokenReader(
+            new StringReader(text),
+            new SourceReference("test.odl"),
+            log.Log);
+    }
 }
