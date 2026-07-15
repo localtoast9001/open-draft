@@ -36,4 +36,19 @@ public class MemberReferenceExpressionParseNode : ReferenceExpressionParseNode
     /// Gets the name of the member being referenced.
     /// </summary>
     public string Name { get; }
+
+    /// <inheritdoc/>
+    public override TypeReferenceParseNode? ToTypeReference()
+    {
+        var inner = this.Target.ToTypeReference();
+        if (inner == null)
+        {
+            return null;
+        }
+
+        return new TypeReferenceParseNode(
+            inner.Names.Concat(new[] { this.Name }),
+            inner.Start,
+            inner.PrecedingComments);
+    }
 }

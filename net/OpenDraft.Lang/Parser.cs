@@ -610,6 +610,71 @@ public class Parser
             return this.ParseTraceStatement();
         }
 
+        var expr = this.ParseExpression();
+        if (expr == null)
+        {
+            return null;
+        }
+
+        if (expr is CallExpressionParseNode callExpr)
+        {
+            if (!this.Expect(Symbol.Semicolon))
+            {
+                return null;
+            }
+
+            return CallStatementParseNode.FromCallExpression(callExpr);
+        }
+
+        if (expr is ReferenceExpressionParseNode refExpr)
+        {
+            var typeRef = refExpr.ToTypeReference();
+            if (typeRef != null)
+            {
+                string varName = typeRef.Names[0];
+                var token = this.Peek();
+                if (token != null && token.Token is IdentifierToken varNameToken)
+                {
+                    varName = varNameToken.Value;
+                    _ = this.Read();
+                }
+                else if (typeRef.Names.Count > 1)
+                {
+                    this.log(MessageUtility.VariableNameExpectedAfterType(
+                        token?.Token, this.tokenReader.CurrentSource));
+                    return null;
+                }
+                else
+                {
+                    typeRef = null;
+                }
+
+                if (!this.Expect(Symbol.Assignment))
+                {
+                    return null;
+                }
+
+                expr = this.ParseExpression();
+                if (expr == null)
+                {
+                    return null;
+                }
+
+                if (!this.Expect(Symbol.Semicolon))
+                {
+                    return null;
+                }
+
+                return new VariableDefinitionParseNode(
+                    varName,
+                    typeRef,
+                    expr,
+                    start!.Token,
+                    start!.PrecedingComments);
+            }
+        }
+
+        this.log(MessageUtility.UnexpectedToken(start.Token, start.Token.Source));
         return null;
     }
 

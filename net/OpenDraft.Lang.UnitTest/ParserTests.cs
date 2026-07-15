@@ -173,6 +173,81 @@ public class ParserTests
         Assert.AreEqual(TraceStatementSeverity.Info, infoStatement.Severity);
     }
 
+    /// <summary>
+    /// Tests a single statement that assigns a variable.
+    /// </summary>
+    [TestMethod]
+    public void VariableAssignmentStatementTest()
+    {
+        const string testCase = @"
+        x = 5;";
+
+        var log = new TestMessageLog();
+        var parser = CreateParser(log, testCase);
+        var program = parser.Parse();
+        Assert.IsNotNull(program);
+        Assert.HasCount(1, program.ProgramElements);
+
+        var statement = program.ProgramElements[0] as VariableDefinitionParseNode;
+        Assert.IsNotNull(statement);
+        Assert.AreEqual("x", statement.Name);
+        Assert.IsNull(statement.Type);
+        var value = statement.Value as LiteralExpressionParseNode<long>;
+        Assert.IsNotNull(value);
+        Assert.AreEqual(5, value.Value);
+    }
+
+    /// <summary>
+    /// Tests a single statement that assigns a typed variable.
+    /// </summary>
+    [TestMethod]
+    public void TypedVariableAssignmentStatementTest()
+    {
+        const string testCase = @"
+            int x = 5;
+        ";
+
+        var log = new TestMessageLog();
+        var parser = CreateParser(log, testCase);
+        var program = parser.Parse();
+        Assert.IsNotNull(program);
+        Assert.HasCount(1, program.ProgramElements);
+
+        var statement = program.ProgramElements[0] as VariableDefinitionParseNode;
+        Assert.IsNotNull(statement);
+        Assert.AreEqual("x", statement.Name);
+        Assert.IsNotNull(statement.Type);
+        Assert.AreEqual("int", statement.Type!.Names[0]);
+        var value = statement.Value as LiteralExpressionParseNode<long>;
+        Assert.IsNotNull(value);
+        Assert.AreEqual(5, value.Value);
+    }
+
+    /// <summary>
+    /// Tests a single statement that calls a function.
+    /// </summary>
+    [TestMethod]
+    public void CallStatementTest()
+    {
+        const string testCase = @"
+        foo(42);";
+
+        var log = new TestMessageLog();
+        var parser = CreateParser(log, testCase);
+        var program = parser.Parse();
+        Assert.IsNotNull(program);
+        Assert.HasCount(1, program.ProgramElements);
+
+        var statement = program.ProgramElements[0] as CallStatementParseNode;
+        Assert.IsNotNull(statement);
+        var target = statement.Target as VariableReferenceParseNode;
+        Assert.AreEqual("foo", target!.Name);
+        Assert.HasCount(1, statement.Arguments);
+        var arg = statement.Arguments[0].Value as LiteralExpressionParseNode<long>;
+        Assert.IsNotNull(arg);
+        Assert.AreEqual(42, arg.Value);
+    }
+
     private static Parser CreateParser(
         TestMessageLog log,
         string text,

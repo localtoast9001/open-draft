@@ -28,4 +28,13 @@ public class VariableReferenceParseNode : ReferenceExpressionParseNode
     /// Gets the name of the variable being referenced.
     /// </summary>
     public string Name { get; }
+
+    /// <inheritdoc/>
+    public override TypeReferenceParseNode? ToTypeReference()
+    {
+        return new TypeReferenceParseNode(
+            new[] { this.Name },
+            this.Start,
+            this.PrecedingComments);
+    }
 }

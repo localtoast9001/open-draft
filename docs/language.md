@@ -271,4 +271,5 @@ ODL2003 - **ERROR** - Identifier expected.
 ODL2004 - **ERROR** - String literal expected.  
 ODL2005 - **ERROR** - Numeric literal expected.  
 ODL2006 - **ERROR** - Integer literal expected.  
+ODL2007 - **ERROR** - Variable name expected after type reference.  
 ODL2100 - **ERROR** - Unexpected token.  

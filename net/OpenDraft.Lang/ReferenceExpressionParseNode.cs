@@ -20,4 +20,13 @@ public abstract class ReferenceExpressionParseNode : ExpressionParseNode
         : base(start, precedingComments)
     {
     }
+
+    /// <summary>
+    /// Attempts to convert the expression into a possible type reference parse node.
+    /// </summary>
+    /// <returns>A <see cref="TypeReferenceParseNode"/> if the conversion is possible; otherwise, <c>null</c>.</returns>
+    public virtual TypeReferenceParseNode? ToTypeReference()
+    {
+        return null;
+    }
 }
