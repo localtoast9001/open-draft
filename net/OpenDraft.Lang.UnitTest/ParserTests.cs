@@ -248,6 +248,173 @@ public class ParserTests
         Assert.AreEqual(42, arg.Value);
     }
 
+    /// <summary>
+    /// Tests a single statement that contains an array expression.
+    /// </summary>
+    [TestMethod]
+    public void ArrayExpressionTest()
+    {
+        const string testCase = @"
+            debug [1, 2, 3];
+        ";
+
+        var log = new TestMessageLog();
+        var parser = CreateParser(log, testCase);
+        var program = parser.Parse();
+        Assert.IsNotNull(program);
+        Assert.HasCount(1, program.ProgramElements);
+
+        var statement = program.ProgramElements[0] as TraceStatementParseNode;
+        Assert.IsNotNull(statement);
+        var array = statement.Expression as ArrayExpressionParseNode;
+        Assert.IsNotNull(array);
+        Assert.HasCount(1, array.Elements);
+        Assert.HasCount(3, array.Elements[0]);
+    }
+
+    /// <summary>
+    /// Tests a single statement that contains a multi-dimensional array expression.
+    /// </summary>
+    [TestMethod]
+    public void MultiDimArrayTest()
+    {
+        const string testCase = @"
+            debug [1, 2, 3;
+                   4, 5, 6];
+        ";
+
+        var log = new TestMessageLog();
+        var parser = CreateParser(log, testCase);
+        var program = parser.Parse();
+        Assert.IsNotNull(program);
+        Assert.HasCount(1, program.ProgramElements);
+
+        var statement = program.ProgramElements[0] as TraceStatementParseNode;
+        Assert.IsNotNull(statement);
+        var array = statement.Expression as ArrayExpressionParseNode;
+        Assert.IsNotNull(array);
+        Assert.HasCount(2, array.Elements);
+        Assert.HasCount(3, array.Elements[0]);
+        Assert.HasCount(3, array.Elements[1]);
+    }
+
+    /// <summary>
+    /// Tests a single statement that contains an empty array expression.
+    /// </summary>
+    [TestMethod]
+    public void EmptyArrayTest()
+    {
+        const string testCase = @"
+            debug [];
+        ";
+
+        var log = new TestMessageLog();
+        var parser = CreateParser(log, testCase);
+        var program = parser.Parse();
+        Assert.IsNotNull(program);
+        Assert.HasCount(1, program.ProgramElements);
+
+        var statement = program.ProgramElements[0] as TraceStatementParseNode;
+        Assert.IsNotNull(statement);
+        var array = statement.Expression as ArrayExpressionParseNode;
+        Assert.IsNotNull(array);
+        Assert.HasCount(0, array.Elements);
+    }
+
+    /// <summary>
+    /// Tests a single statement that contains a jagged array expression.
+    /// </summary>
+    [TestMethod]
+    public void JaggedArrayTest()
+    {
+        const string testCase = @"
+            debug [[1, 2, 3], [4, 5]];
+        ";
+
+        var log = new TestMessageLog();
+        var parser = CreateParser(log, testCase);
+        var program = parser.Parse();
+        Assert.IsNotNull(program);
+        Assert.HasCount(1, program.ProgramElements);
+
+        var statement = program.ProgramElements[0] as TraceStatementParseNode;
+        Assert.IsNotNull(statement);
+        var array = statement.Expression as ArrayExpressionParseNode;
+        Assert.IsNotNull(array);
+        Assert.HasCount(1, array.Elements);
+        Assert.HasCount(2, array.Elements[0]);
+        var row1 = array.Elements[0][0] as ArrayExpressionParseNode;
+        Assert.IsNotNull(row1);
+        Assert.HasCount(1, row1.Elements);
+        Assert.HasCount(3, row1.Elements[0]);
+
+        var row2 = array.Elements[0][1] as ArrayExpressionParseNode;
+        Assert.IsNotNull(row2);
+        Assert.HasCount(1, row2.Elements);
+        Assert.HasCount(2, row2.Elements[0]);
+    }
+
+    /// <summary>
+    /// Tests a single statement that contains an index expression.
+    /// </summary>
+    [TestMethod]
+    public void IndexExpressionTest()
+    {
+        const string testCase = @"
+            debug a[0];
+        ";
+
+        var log = new TestMessageLog();
+        var parser = CreateParser(log, testCase);
+        var program = parser.Parse();
+        Assert.IsNotNull(program);
+        Assert.HasCount(1, program.ProgramElements);
+
+        var statement = program.ProgramElements[0] as TraceStatementParseNode;
+        Assert.IsNotNull(statement);
+        var indexExpression = statement.Expression as IndexExpressionParseNode;
+        Assert.IsNotNull(indexExpression);
+        var array = indexExpression.Target as VariableReferenceParseNode;
+        Assert.IsNotNull(array);
+        Assert.AreEqual("a", array.Name);
+        Assert.HasCount(1, indexExpression.Indexes);
+        var index = indexExpression.Indexes[0] as LiteralExpressionParseNode<long>;
+        Assert.IsNotNull(index);
+        Assert.AreEqual(0, index.Value);
+    }
+
+    /// <summary>
+    /// Tests a single statement that contains a multi-dimensional index expression.
+    /// </summary>
+    [TestMethod]
+    public void MultiDimIndexExpressionTest()
+    {
+        const string testCase = @"
+            debug a[0, 1];
+        ";
+
+        var log = new TestMessageLog();
+        var parser = CreateParser(log, testCase);
+        var program = parser.Parse();
+        Assert.IsNotNull(program);
+        Assert.HasCount(1, program.ProgramElements);
+
+        var statement = program.ProgramElements[0] as TraceStatementParseNode;
+        Assert.IsNotNull(statement);
+        var indexExpression = statement.Expression as IndexExpressionParseNode;
+        Assert.IsNotNull(indexExpression);
+        var array = indexExpression.Target as VariableReferenceParseNode;
+        Assert.IsNotNull(array);
+        Assert.AreEqual("a", array.Name);
+        Assert.HasCount(2, indexExpression.Indexes);
+        var index0 = indexExpression.Indexes[0] as LiteralExpressionParseNode<long>;
+        Assert.IsNotNull(index0);
+        Assert.AreEqual(0, index0.Value);
+        var index1 = indexExpression.Indexes[1] as LiteralExpressionParseNode<long>;
+        Assert.IsNotNull(index1);
+        Assert.AreEqual(1, index1.Value);
+    }
+
     private static Parser CreateParser(
         TestMessageLog log,
         string text,

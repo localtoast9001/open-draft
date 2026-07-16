@@ -1602,9 +1602,48 @@ public class Parser
             return null;
         }
 
-        var elements = new List<ExpressionParseNode>();
+        var elements = new List<List<ExpressionParseNode>>();
         var token = this.Peek();
         while (token != null && !Is(token, Symbol.RightBracket))
+        {
+            var row = this.ParseArrayRow();
+            if (row == null)
+            {
+                return null;
+            }
+
+            elements.Add(row.ToList());
+
+            token = this.Peek();
+            if (token != null && Is(token, Symbol.Semicolon))
+            {
+                _ = this.Read();
+                token = this.Peek();
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (!this.Expect(Symbol.RightBracket))
+        {
+            return null;
+        }
+
+        return new ArrayExpressionParseNode(
+            elements,
+            start!.Token,
+            start.PrecedingComments);
+    }
+
+    private IEnumerable<ExpressionParseNode>? ParseArrayRow()
+    {
+        var elements = new List<ExpressionParseNode>();
+        var token = this.Peek();
+        while (token != null &&
+            !Is(token, Symbol.RightBracket) &&
+            !Is(token, Symbol.Semicolon))
         {
             var element = this.ParseExpression();
             if (element == null)
@@ -1626,15 +1665,7 @@ public class Parser
             }
         }
 
-        if (!this.Expect(Symbol.RightBracket))
-        {
-            return null;
-        }
-
-        return new ArrayExpressionParseNode(
-            elements,
-            start!.Token,
-            start.PrecedingComments);
+        return elements;
     }
 
     private ExpressionParseNode? ParseObjectExpression()
@@ -1805,10 +1836,26 @@ public class Parser
             return null;
         }
 
+        var indexes = new List<ExpressionParseNode>();
         var index = this.ParseExpression();
         if (index == null)
         {
             return null;
+        }
+
+        indexes.Add(index);
+        var token = this.Peek();
+        while (token != null && Is(token, Symbol.Comma))
+        {
+            _ = this.Read();
+            var nextIndex = this.ParseExpression();
+            if (nextIndex == null)
+            {
+                return null;
+            }
+
+            indexes.Add(nextIndex);
+            token = this.Peek();
         }
 
         if (!this.Expect(Symbol.RightBracket))
@@ -1818,7 +1865,7 @@ public class Parser
 
         return new IndexExpressionParseNode(
             target,
-            index,
+            indexes,
             start!.Token,
             start.PrecedingComments);
     }

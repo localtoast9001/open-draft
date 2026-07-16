@@ -13,18 +13,22 @@ public class IndexExpressionParseNode : ReferenceExpressionParseNode
     /// Initializes a new instance of the <see cref="IndexExpressionParseNode"/> class.
     /// </summary>
     /// <param name="target">The target of the index expression.</param>
-    /// <param name="index">The index expression.</param>
+    /// <param name="indexes">The index expression(s).</param>
     /// <param name="start">The starting token of the index expression.</param>
     /// <param name="precedingComments">The comments preceding the index expression.</param>
     public IndexExpressionParseNode(
         ReferenceExpressionParseNode target,
-        ExpressionParseNode index,
+        IEnumerable<ExpressionParseNode> indexes,
         Token start,
         IEnumerable<CommentToken> precedingComments)
         : base(start, precedingComments)
     {
         this.Target = target ?? throw new ArgumentNullException(nameof(target));
-        this.Index = index ?? throw new ArgumentNullException(nameof(index));
+        this.Indexes = indexes?.ToList() ?? throw new ArgumentNullException(nameof(indexes));
+        if (this.Indexes.Count < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(indexes), "At least one index expression is required.");
+        }
     }
 
     /// <summary>
@@ -33,7 +37,7 @@ public class IndexExpressionParseNode : ReferenceExpressionParseNode
     public ReferenceExpressionParseNode Target { get; }
 
     /// <summary>
-    /// Gets the index expression.
+    /// Gets the index expression(s).
     /// </summary>
-    public ExpressionParseNode Index { get; }
+    public IReadOnlyList<ExpressionParseNode> Indexes { get; }
 }

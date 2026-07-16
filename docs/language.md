@@ -225,11 +225,12 @@ _statement_ ::= *block_statement* | *core_statement*
 *unary_expression* ::= ( ( `-` | `+` | `!` | `~` ) *unary_expression* ) | *paren_expression* | *reference_expression* | *literal_expression* | *array_expression* | *object_expression*    
 *paren_expression* ::= `(` _expression_ `)`  
 *literal_expression* ::= `true` | `false` | `null` | *numeric_literal* | *string_literal*  
-*array_expression* ::= `[` _e_ | ( _expression_ [ `,` _expression_ ]* ) `]`  
+*array_expression* ::= `[` _e_ | ( *array_row* [ `;` *array_row* ]* ) `]`  
+*array_row* ::= _e_ | ( _expression_ [ `,` _expression_ ]* )
 *object_expression* ::= `{` _e_ | ( *obj_member* [ `,` *obj_member* ]* ) `}`
 *reference_expression* ::= _identifier_ | *member_reference* | *array_index* | *call_expression*  
 *member_reference* ::= *reference_expression* `.` _identifier_  
-*array_index* ::= *reference_expression* `[` *expression* `]`  
+*array_index* ::= *reference_expression* `[` *expression* ( `,` *expression* +)* `]`  
 *call_expression* ::= *reference_expression* `(` *argument_list* `)`  
 *obj_member* ::= _identifier_ `=` _expression_  
 *argument_list* ::= _e_ | ( _argument_ ( `,` _argument_ )* )  

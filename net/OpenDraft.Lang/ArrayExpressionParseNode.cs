@@ -16,16 +16,16 @@ public class ArrayExpressionParseNode : ExpressionParseNode
     /// <param name="start">The starting token of the expression.</param>
     /// <param name="precedingComments">The comments preceding the expression.</param>
     public ArrayExpressionParseNode(
-        IReadOnlyList<ExpressionParseNode> elements,
+        IEnumerable<IEnumerable<ExpressionParseNode>> elements,
         Token start,
         IEnumerable<CommentToken> precedingComments)
         : base(start, precedingComments)
     {
-        this.Elements = elements.ToList().AsReadOnly();
+        this.Elements = elements.Select(e => e.ToList().AsReadOnly()).ToList().AsReadOnly();
     }
 
     /// <summary>
     /// Gets the elements of the array expression.
     /// </summary>
-    public IReadOnlyList<ExpressionParseNode> Elements { get; }
+    public IReadOnlyList<IReadOnlyList<ExpressionParseNode>> Elements { get; }
 }
