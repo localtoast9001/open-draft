@@ -763,7 +763,7 @@ public class TokenReader : IDisposable
         if (ch >= 0)
         {
             _ = this.ReadChar();
-            value = (value * 0x10) + ch;
+            value = (value << 4) | ch;
         }
 
         return value;

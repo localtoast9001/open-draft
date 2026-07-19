@@ -61,4 +61,9 @@ namespace opendraft::lang
 
         return length;
     }
+
+    std::ostream& operator<<(std::ostream& os, const message_id& id)
+    {
+        return os << id.to_string();
+    }
 }

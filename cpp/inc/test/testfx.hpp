@@ -12,6 +12,7 @@
 #include <exception>
 #include <chrono>
 #include <source_location>
+#include <memory>
 
 namespace testfx
 {
@@ -229,6 +230,37 @@ namespace testfx
         {
             std::ostringstream oss;
             oss << "Assertion failed: expected [" << expected << "], got [" << actual << "]";
+            throw assert_exception(oss.str(), location);
+        }
+    }
+
+    void assert_equal(
+        const char* expected,
+        const char* actual,
+        const std::source_location& location = std::source_location::current());
+
+    template<typename T>
+    void assert_not_null(
+        const T* ptr,
+        const std::source_location& location = std::source_location::current())
+    {
+        if (ptr == nullptr)
+        {
+            std::ostringstream oss;
+            oss << "Assertion failed: pointer is null";
+            throw assert_exception(oss.str(), location);
+        }
+    }
+
+    template<typename T>
+    void assert_not_null(
+        const std::shared_ptr<T>& ptr,
+        const std::source_location& location = std::source_location::current())
+    {
+        if (!ptr)
+        {
+            std::ostringstream oss;
+            oss << "Assertion failed: shared pointer is null";
             throw assert_exception(oss.str(), location);
         }
     }

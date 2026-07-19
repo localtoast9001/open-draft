@@ -86,6 +86,15 @@ namespace opendraft::lang
         return !(*this == other);
     }
 
+    source_reference source_reference::from_source_location(
+        const std::source_location& location)
+    {
+        return source_reference(
+            location.file_name(),
+            static_cast<int>(location.line()),
+            static_cast<int>(location.column()));
+    }
+
     std::ostream& operator<<(std::ostream& os, const source_reference& ref)
     {
         os << ref.to_string();

@@ -9,6 +9,7 @@
 #define __OPENDRAFT_LANG_MESSAGE_HPP__
 
 #include <string>
+#include <ostream>
 #include "source_reference.hpp"
 
 namespace opendraft::lang
@@ -85,6 +86,9 @@ namespace opendraft::lang
         opendraft::lang::severity _severity;
         std::string _text;
     };
+
+    std::ostream& operator<<(std::ostream& os, const message_id& id);
+    std::ostream& operator<<(std::ostream& os, const message& msg);
 }
 
 #endif /* __OPENDRAFT_LANG_MESSAGE_HPP__ */
