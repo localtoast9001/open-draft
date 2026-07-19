@@ -10,6 +10,7 @@
 #define _OPEN_DRAFT_SOURCE_REFERENCE_HPP_
 
 #include <string>
+#include <source_location>
 
 namespace opendraft::lang
 {
@@ -38,6 +39,14 @@ namespace opendraft::lang
             int end_column = 0);
 
         ~source_reference() = default;
+
+        /**
+         * Creates a source reference from a std::source_location object.
+         * @param location The source location object.
+         * @return A source_reference object representing the location.
+         */
+        static source_reference from_source_location(
+            const std::source_location& location = std::source_location::current());
 
         /**
         * @brief Gets the path to the source file.

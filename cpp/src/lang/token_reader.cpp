@@ -7,6 +7,7 @@
 #include <token_reader.hpp>
 #include <sstream>
 #include <cmath>
+#include "message_utility.hpp"
 
 using namespace opendraft::lang;
 
@@ -424,33 +425,36 @@ std::shared_ptr<token> token_reader::read_string_literal()
 {
     source_reference start_source = current_source();
     std::ostringstream ss;
-    int ch = read_char(); // consume the opening quote
-    ch = _inner.peek();
-    while (ch != '"')
+    read_char(); // consume the opening quote
+    int ch = _inner.peek();
+    while (ch > 0 && ch != '"' && ch != '\n')
     {
-        if (ch == EOF)
+        read_char();
+        if (ch == '\\')
         {
-            _message_callback(message(
-                current_source(),
-                message_id("OD", 2),
-                severity::SEVERITY_ERROR,
-                "Unterminated string literal."));
-            break;
-        }
-        else if (ch == '\\')
-        {
-            read_char(); // consume the backslash
-            ch = _inner.peek();
+            ch = read_char(); 
             switch (ch)
             {
+            case 'a':
+                ss << '\a';
+                break;
+            case 'b':
+                ss << '\b';
+                break;
+            case 'f':
+                ss << '\f';
+                break;
+            case 'v':
+                ss << '\v';
+                break;
             case 'n':
                 ss << '\n';
                 break;
-            case 't':
-                ss << '\t';
-                break;
             case 'r':
                 ss << '\r';
+                break;
+            case 't':
+                ss << '\t';
                 break;
             case '\\':
                 ss << '\\';
@@ -458,21 +462,42 @@ std::shared_ptr<token> token_reader::read_string_literal()
             case '"':
                 ss << '"';
                 break;
+            case 'x':
+                {
+                    int hex_value = read_hex_escape_sequence();
+                    if (hex_value < 0)
+                    {
+                        // error is logged.
+                        return nullptr;
+                    }
+
+                    ss << static_cast<char>(hex_value);
+                } break;
             default:
-                ss << static_cast<char>(ch);
-                break;
+                _message_callback(message_utility::unknown_escape_sequence(
+                    current_source(),
+                    ch));
+                return nullptr;
             }
         }
         else
         {
-            read_char(); // consume the character
             ss << static_cast<char>(ch);
         }
 
         ch = _inner.peek();
     }
 
-    read_char(); // consume the closing quote
+    if (ch == '"')
+    {
+        read_char(); // consume the closing quote
+    }
+    else
+    {
+        _message_callback(message_utility::unterminated_string_literal(
+            current_source()));
+        return nullptr;
+    }
 
     std::string str_value = ss.str();
     source_reference source = source_reference(
@@ -544,6 +569,7 @@ std::shared_ptr<token> token_reader::read_comment(const source_reference& start_
                 ch = read_char();
             }
         }
+
         std::string comment_text = ss.str();
         source_reference source = source_reference(
             start_source.path(),
@@ -555,6 +581,51 @@ std::shared_ptr<token> token_reader::read_comment(const source_reference& start_
     }
 }
 
+int token_reader::read_hex_escape_sequence()
+{
+    int value = 0;
+    int ch = peek_hex_digit();
+    if (ch < 0)
+    {
+        _message_callback(
+            message_utility::invalid_hex_escape_sequence(
+                current_source(),
+                static_cast<char>(ch)));
+        return -1; // invalid hex digit
+    }
+
+    read_char();
+    value = ch;
+    ch = peek_hex_digit();
+    if (ch >= 0)
+    {
+        read_char();
+        value = (value << 4) | ch;
+    }
+
+    return value;
+}
+
+int token_reader::peek_hex_digit()
+{
+    int ch = _inner.peek();
+    if (ch >= '0' && ch <= '9')
+    {
+        return ch - '0';
+    }
+    else if (ch >= 'a' && ch <= 'f')
+    {
+        return 10 + (ch - 'a');
+    }
+    else if (ch >= 'A' && ch <= 'F')
+    {
+        return 10 + (ch - 'A');
+    }
+    else
+    {
+        return -1; // not a hex digit
+    }
+}
 
 void token_reader::skip_whitespace()
 {

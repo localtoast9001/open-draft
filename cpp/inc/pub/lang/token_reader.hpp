@@ -70,6 +70,8 @@ namespace opendraft::lang
         std::shared_ptr<token> read_numeric_literal();
         std::shared_ptr<token> read_decimal_literal(const source_reference& start_source, long int_part);
         std::shared_ptr<token> read_symbol();
+        int read_hex_escape_sequence();
+        int peek_hex_digit();
 
         void skip_whitespace();
 

@@ -30,4 +30,9 @@ namespace opendraft::lang
             _id.to_string() + ": " + 
             _text;
     }
+
+    std::ostream& operator<<(std::ostream& os, const message& msg)
+    {
+        return os << msg.to_string();
+    }
 }

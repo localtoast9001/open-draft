@@ -34,6 +34,7 @@ public:
     void equality_operator_test();
     void inequality_operator_test();
     void stream_insertion_operator_test();
+    void from_source_location_test();
 };
 
 source_reference_test source_reference_test::instance;
@@ -57,6 +58,7 @@ source_reference_test::source_reference_test()
     add("equality_operator_test", (test_method)&source_reference_test::equality_operator_test);
     add("inequality_operator_test", (test_method)&source_reference_test::inequality_operator_test);
     add("stream_insertion_operator_test", (test_method)&source_reference_test::stream_insertion_operator_test);
+    add("from_source_location_test", (test_method)&source_reference_test::from_source_location_test);
 }
 
 void source_reference_test::default_constructor_test()
@@ -188,4 +190,15 @@ void source_reference_test::stream_insertion_operator_test()
     std::ostringstream oss;
     oss << ref;
     assert_equal(std::string("test.cpp:10:5-12:8"), oss.str());
+}
+
+void source_reference_test::from_source_location_test()
+{
+    auto location = std::source_location::current();
+    source_reference ref = source_reference::from_source_location(location);
+    assert_equal(location.file_name(), ref.path().c_str());
+    assert_equal((int)location.line(), ref.line());
+    assert_equal((int)location.column(), ref.column());
+    assert_equal((int)location.line(), ref.end_line());
+    assert_equal((int)location.column(), ref.end_column());
 }
