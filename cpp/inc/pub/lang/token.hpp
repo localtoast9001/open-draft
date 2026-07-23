@@ -134,13 +134,20 @@ namespace opendraft::lang
     class numeric_literal_token : public token
     {
     public:
-        numeric_literal_token(const source_reference& source, long value);
-        numeric_literal_token(const source_reference& source, double value);
+        numeric_literal_token(
+            const source_reference& source,
+            long value,
+            const std::string& unit = std::string());
+        numeric_literal_token(
+            const source_reference& source,
+            double value,
+            const std::string& unit = std::string());
         virtual token_type type() const override;
 
         constexpr bool is_integer() const { return _is_integer; }
         constexpr long integer_value() const { return _integer_value; }
         constexpr double double_value() const { return _double_value; }
+        constexpr const std::string& unit() const { return _unit; }
 
         virtual std::string to_string() const override;
 
@@ -148,6 +155,7 @@ namespace opendraft::lang
         bool _is_integer;
         long _integer_value;
         double _double_value;
+        std::string _unit;
     };
 
     /**

@@ -7,7 +7,8 @@
 #include <token_reader.hpp>
 #include <sstream>
 #include <cmath>
-#include "message_utility.hpp"
+#include <message_utility.hpp>
+#include <float_utility.hpp>
 
 using namespace opendraft::lang;
 
@@ -60,9 +61,75 @@ bool token_reader::is_identifier_start(int ch)
     return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_';
 }
 
+bool token_reader::is_identifier_part(int ch)
+{
+    return is_identifier_start(ch) || is_digit(ch);
+}
+
 bool token_reader::is_digit(int ch)
 {
     return ch >= '0' && ch <= '9';
+}
+
+bool token_reader::is_unit_start(int ch)
+{
+    // handle degree symbol '°' (\xC2\xB0 in UTF-8), and
+    // handle rad symbol '㎭' (\xE3\x8E\xAD in UTF-8) by
+    // proceeding if the first byte is the start of either, as the start of a unit
+    // specifier is the only valid place for multi-byte UTF-8 characters outside of a string literal.
+    return is_identifier_start(ch) ||
+        ch == '\'' || ch == '"' || ch == 0xc2 || ch == 0xe3;
+}
+
+bool token_reader::is_unit_part(int ch)
+{
+    return is_identifier_part(ch) || ch == 0xb0 || ch == 0x8e || ch == 0xad;
+}
+
+int token_reader::get_radix(int ch)
+{
+    switch (ch)
+    {
+    case 'b':
+    case 'B':
+        return 2;
+    case 'o':
+    case 'O':
+        return 8;
+    case 'x':
+    case 'X':
+        return 16;
+    default:
+        return 10;
+    }
+}
+
+int token_reader::get_digit(int ch, int radix)
+{
+    if (radix <= 10)
+    {
+        if (ch >= '0' && ch < '0' + radix)
+        {
+            return ch - '0';
+        }
+    }
+    else
+    {
+        if (ch >= '0' && ch <= '9')
+        {
+            return ch - '0';
+        }
+        else if (ch >= 'a' && ch < 'a' + radix - 10)
+        {
+            return 10 + (ch - 'a');
+        }
+        else if (ch >= 'A' && ch < 'A' + radix - 10)
+        {
+            return 10 + (ch - 'A');
+        }
+    }
+
+    return -1; // not a valid digit for the given radix
 }
 
 std::shared_ptr<token> token_reader::inner_read()
@@ -128,7 +195,7 @@ std::shared_ptr<token> token_reader::read_keyword_or_identifier()
     int ch = read_char();
     ss << static_cast<char>(ch);
     ch = _inner.peek();
-    while (is_identifier_start(ch) || is_digit(ch))
+    while (is_identifier_part(ch))
     {
         ch = read_char();
         ss << static_cast<char>(ch);
@@ -341,75 +408,64 @@ std::shared_ptr<token> token_reader::read_numeric_literal()
     source_reference start_source = current_source();
     long int_part = 0;
     int ch = _inner.peek();
-    while (is_digit(ch))
+    int radix = 10;
+    if (ch == '0')
     {
         read_char();
-        int_part = int_part * 10 + (ch - '0');
         ch = _inner.peek();
+        radix = get_radix(ch);
+        if (radix != 10)
+        {
+            read_char();
+            ch = _inner.peek();
+            if (get_digit(ch, radix) < 0)
+            {
+                _message_callback(message_utility::invalid_number_after_radix(
+                    current_source()));
+                return nullptr;
+            }
+        }
     }
 
-    if (ch == '.')
+    int digit = get_digit(ch, radix);
+    while (digit >= 0)
     {
         read_char();
-        return read_decimal_literal(start_source, int_part);
-    }
-    else
-    {
-        source_reference source = source_reference(
-            start_source.path(),
-            start_source.line(),
-            start_source.column(),
-            _line,
-            _column);
-        return std::make_shared<numeric_literal_token>(source, int_part);
-    }
-}
-
-std::shared_ptr<token> token_reader::read_decimal_literal(
-    const source_reference& start_source,
-    long int_part)
-{
-    // the decimal point has already been read.
-    double frac_part = 0.0;
-    double multiplier = 0.1;
-    int ch = _inner.peek();
-    while (is_digit(ch))
-    {
-        read_char();
-        frac_part += (ch - '0') * multiplier;
-        multiplier *= 0.1;
+        int_part = int_part * radix + digit;
         ch = _inner.peek();
+        digit = get_digit(ch, radix);
     }
 
     int exponent = 0;
-    bool exponent_negative = false;
-    if (ch == 'e' || ch == 'E')
+    bool has_exponent = false;
+
+    if (radix == 10)
     {
-        read_char();
-        ch = _inner.peek();
-        if (ch == '+' || ch == '-')
+        if (ch == '.')
         {
-            exponent_negative = (ch == '-');
             read_char();
-            ch = _inner.peek();
+            return read_decimal_literal(start_source, int_part);
         }
-        while (is_digit(ch))
+
+        if (ch == 'e' || ch == 'E')
         {
             read_char();
-            exponent = exponent * 10 + (ch - '0');
-            ch = _inner.peek();
+            has_exponent = true;
+            if (!try_read_exponent_part(/*out*/ exponent))
+            {
+                return nullptr; // error already logged.
+            }
         }
     }
 
-    double value = int_part + frac_part;
-    if (exponent != 0)
+    std::string unit;
+    ch = _inner.peek();
+    if (is_unit_start(ch))
     {
-        if (exponent_negative)
+        if (!read_unit(/*out*/ unit))
         {
-            exponent = -exponent;
+            return nullptr; // error already logged.
         }
-
-        value *= std::pow(10.0, exponent);
     }
 
     source_reference source = source_reference(
@@ -418,7 +474,168 @@ std::shared_ptr<token> token_reader::read_decimal_literal(
         start_source.column(),
         _line,
         _column);
-    return std::make_shared<numeric_literal_token>(source, value);
+    if (has_exponent)
+    {
+        double result = int_part * std::pow(10.0, exponent);
+        return std::make_shared<numeric_literal_token>(source, result, unit);
+    }
+    else
+    {
+        return std::make_shared<numeric_literal_token>(source, int_part, unit);
+    }
+}
+
+bool token_reader::read_unit(/*out*/std::string& unit)
+{
+    std::ostringstream ss;
+    int ch = read_char();
+    bool underscore_start = ch == '_';
+    if (underscore_start)
+    {
+        ch = _inner.peek();
+        if (!is_unit_start(ch))
+        {
+            _message_callback(message_utility::invalid_unit_specifier(
+                current_source(),
+                ch > 0 ? std::string(1, static_cast<char>(ch)) : ""));
+            return false; // error.
+        }
+
+        read_char();
+    }
+
+    ss << static_cast<char>(ch);
+    ch = _inner.peek();
+    while (is_unit_part(ch))
+    {
+        read_char();
+        ss << static_cast<char>(ch);
+        ch = _inner.peek();
+    }
+
+    // The 1st underscore is a delimiter and is removed from the result.
+    unit = ss.str();
+
+    if (unit.empty())
+    {
+        _message_callback(message_utility::invalid_unit_specifier(
+            current_source(),
+            unit));
+        return false;
+    }
+
+    // reject multi-byte sequences outside the specific allowed starting chars.
+    auto unit_validate_start = unit.cbegin();
+    if (unit.starts_with("°"))
+    {
+        unit_validate_start += 2; // skip the degree symbol
+    }
+    else if (unit.starts_with("㎭"))
+    {
+        unit_validate_start += 3; // skip the rad symbol
+    }
+
+    for (auto it = unit_validate_start; it != unit.cend(); ++it)
+    {
+        unsigned char c = static_cast<unsigned char>(*it);
+        if (c >= 0x80)
+        {
+            _message_callback(message_utility::invalid_unit_specifier(
+                current_source(),
+                unit));
+            return false;
+        }
+    }
+
+    return true;
+}
+
+std::shared_ptr<token> token_reader::read_decimal_literal(
+    const source_reference& start_source,
+    long int_part)
+{
+    // the decimal point has already been read.
+    long frac_part = 0;
+    int divisor_exponent = 0;
+    int ch = _inner.peek();
+    while (is_digit(ch))
+    {
+        read_char();
+        frac_part *= 10;
+        frac_part += (ch - '0');
+        --divisor_exponent;
+        ch = _inner.peek();
+    }
+
+    int exponent = 0;
+    if (ch == 'e' || ch == 'E')
+    {
+        read_char();
+        if (!try_read_exponent_part(/*out*/ exponent))
+        {
+            return nullptr; // error already logged.
+        }
+    }
+
+    double value = float_utility::compose(
+        int_part,
+        frac_part,
+        divisor_exponent,
+        exponent);
+
+    std::string unit;
+    ch = _inner.peek();
+    if (is_unit_start(ch))
+    {
+        if (!read_unit(/*out*/ unit))
+        {
+            return nullptr; // error already logged.
+        }
+    }
+
+    source_reference source = source_reference(
+        start_source.path(),
+        start_source.line(),
+        start_source.column(),
+        _line,
+        _column);
+    return std::make_shared<numeric_literal_token>(source, value, unit);
+}
+
+bool token_reader::try_read_exponent_part(/*out*/ int& exponent)
+{
+    // 'e' or 'E' has already been read.
+    exponent = 0;
+    int ch = _inner.peek();
+    bool is_negative = false;
+    if (ch == '+' || ch == '-')
+    {
+        read_char();
+        is_negative = (ch == '-');
+        ch = _inner.peek();
+    }
+
+    if (!is_digit(ch))
+    {
+        _message_callback(message_utility::expected_decimal_exponent(
+            current_source()));
+        return false;
+    }
+
+    exponent = 0;
+    while (is_digit(ch))
+    {
+        read_char();
+        exponent = exponent * 10 + (ch - '0');
+        ch = _inner.peek();
+    }
+
+    if (is_negative)
+    {
+        exponent = -exponent;
+    }
+
+    return true;
 }
 
 std::shared_ptr<token> token_reader::read_string_literal()

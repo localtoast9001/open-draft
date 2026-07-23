@@ -14,12 +14,19 @@ endif()
 
 add_library(opendraft_lang STATIC ${OPENDRAFT_LANG_SOURCES})
 
+target_compile_options(opendraft_lang
+  PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:/Zi>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-g3>
+)
+
 target_include_directories(opendraft_lang
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/pub/core
     ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/pub/lang
   PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/private/core
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/private/lang
 )
 
 target_link_libraries(opendraft_lang PUBLIC opendraft_core)

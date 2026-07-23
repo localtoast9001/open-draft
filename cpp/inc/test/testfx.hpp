@@ -234,6 +234,12 @@ namespace testfx
         }
     }
 
+    template<>
+    void assert_equal<double>(
+        const double& expected,
+        const double& actual,
+        const std::source_location& location);
+
     void assert_equal(
         const char* expected,
         const char* actual,

@@ -151,6 +151,11 @@ public class TokenReaderNumericLiteralTests
             expectedValue: 60,
             input: "60_ft",
             unit: "ft");
+
+        TokenReaderTestUtility.SingleTokenCleanTest(
+            expectedValue: 3,
+            input: "3_\"",
+            unit: "\"");
     }
 
     /// <summary>
@@ -178,6 +183,16 @@ public class TokenReaderNumericLiteralTests
             expectedValue: 3.14m,
             input: "3.14㎭",
             unit: "㎭");
+
+        TokenReaderTestUtility.SingleTokenCleanTest(
+            expectedValue: 3.14m,
+            input: "3.14_㎭",
+            unit: "㎭");
+
+        TokenReaderTestUtility.SingleTokenCleanTest(
+            expectedValue: 10.1m,
+            input: "10.1_'",
+            unit: "'");
     }
 
     /// <summary>

@@ -61,7 +61,12 @@ namespace opendraft::lang
 
         static bool is_whitespace(int ch);
         static bool is_identifier_start(int ch);
+        static bool is_identifier_part(int ch);
         static bool is_digit(int ch);
+        static bool is_unit_start(int ch);
+        static bool is_unit_part(int ch);
+        static int get_radix(int ch);
+        static int get_digit(int ch, int radix);
 
         std::shared_ptr<token> inner_read();
         std::shared_ptr<token> read_keyword_or_identifier();
@@ -72,6 +77,8 @@ namespace opendraft::lang
         std::shared_ptr<token> read_symbol();
         int read_hex_escape_sequence();
         int peek_hex_digit();
+        bool try_read_exponent_part(/*out*/ int& exponent);
+        bool read_unit(/*out*/std::string& unit);
 
         void skip_whitespace();
 

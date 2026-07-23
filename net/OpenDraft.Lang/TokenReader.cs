@@ -95,10 +95,6 @@ public class TokenReader : IDisposable
             {
                 return ch - '0';
             }
-            else
-            {
-                return -1;
-            }
         }
 
         if (radix == 16)
@@ -493,15 +489,15 @@ public class TokenReader : IDisposable
             }
         }
 
+        var source = new SourceReference(
+            this.startSource.Path,
+            startSource.LineNumber,
+            startSource.ColumnNumber,
+            this.line,
+            this.column);
         if (hasExponent)
         {
             decimal result = intPart * (decimal)Math.Pow(10, exponent);
-            var source = new SourceReference(
-                this.startSource.Path,
-                startSource.LineNumber,
-                startSource.ColumnNumber,
-                this.line,
-                this.column);
             return new NumericLiteralToken(
                 source,
                 result,
@@ -509,12 +505,6 @@ public class TokenReader : IDisposable
         }
         else
         {
-            var source = new SourceReference(
-                this.startSource.Path,
-                startSource.LineNumber,
-                startSource.ColumnNumber,
-                this.line,
-                this.column);
             return new NumericLiteralToken(
                 source,
                 intPart,
@@ -526,6 +516,21 @@ public class TokenReader : IDisposable
     {
         StringBuilder sb = new StringBuilder();
         int ch = this.ReadChar();
+        bool underscoreStart = ch == '_';
+        if (underscoreStart)
+        {
+            ch = this.PeekChar();
+            if (!IsUnitStart(ch))
+            {
+                this.log(MessageUtility.InvalidUnitSpecifier(
+                    this.GetTokenSource(),
+                    ch > 0 ? new string((char)ch, 1) : string.Empty));
+                return null; // error.
+            }
+
+            _ = this.ReadChar();
+        }
+
         sb.Append((char)ch);
         ch = this.PeekChar();
         while (IsUnitPart(ch))
@@ -533,12 +538,6 @@ public class TokenReader : IDisposable
             _ = this.ReadChar();
             sb.Append((char)ch);
             ch = this.PeekChar();
-        }
-
-        // The 1st underscore is a delimiter and is removed from the result.
-        if (sb[0] == '_')
-        {
-            sb.Remove(0, 1);
         }
 
         if (sb.Length == 0)

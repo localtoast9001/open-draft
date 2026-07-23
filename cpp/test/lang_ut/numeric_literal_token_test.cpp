@@ -42,6 +42,13 @@ void numeric_literal_token_test::constructor_test()
     assert_equal(token::token_type::NUMERIC_LITERAL, target2->type());
     assert_equal(3.14, target2->double_value());
     assert_equal(false, target2->is_integer());
+
+    auto target3 = std::make_shared<numeric_literal_token>(ref, 42L, "mm");
+    assert_equal(ref, target3->source());
+    assert_equal(token::token_type::NUMERIC_LITERAL, target3->type());
+    assert_equal(42L, target3->integer_value());
+    assert_equal(true, target3->is_integer());
+    assert_equal(std::string("mm"), target3->unit());
 }
 
 void numeric_literal_token_test::to_string_test()
@@ -52,4 +59,7 @@ void numeric_literal_token_test::to_string_test()
 
     auto target2 = std::make_shared<numeric_literal_token>(ref, 3.14);
     assert_equal(std::string("3.14"), target2->to_string());
+
+    auto target3 = std::make_shared<numeric_literal_token>(ref, 42L, "mm");
+    assert_equal(std::string("42mm"), target3->to_string());
 }

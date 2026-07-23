@@ -10,14 +10,18 @@
 namespace opendraft::lang
 {
     numeric_literal_token::numeric_literal_token(
-        const source_reference& source, long value)
-        : token(source), _integer_value(value), _is_integer(true)
+        const source_reference& source,
+        long value,
+        const std::string& unit)
+        : token(source), _integer_value(value), _is_integer(true), _unit(unit)
     {
     }
 
     numeric_literal_token::numeric_literal_token(
-        const source_reference& source, double value)
-        : token(source), _double_value(value), _is_integer(false)
+        const source_reference& source,
+        double value,
+        const std::string& unit)
+        : token(source), _double_value(value), _is_integer(false), _unit(unit)
     {
     }
 
@@ -28,13 +32,9 @@ namespace opendraft::lang
 
     std::string numeric_literal_token::to_string() const
     {
-        if (_is_integer)
-        {
-            return std::to_string(_integer_value);
-        }
-        else
-        {
-            return std::format("{:g}", _double_value);
-        }
+        auto str = _is_integer ? 
+            std::to_string(_integer_value) : 
+            std::format("{:g}", _double_value);
+        return str + _unit;
     }
 }
