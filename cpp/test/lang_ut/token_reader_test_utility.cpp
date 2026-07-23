@@ -30,10 +30,60 @@ void token_reader_test_utility::single_token_clean_test(
     std::istringstream ss(input);
     auto reader = create_token_reader(ss, log, location);
     auto token = reader->read();
-    assert_not_null(token);
+    assert_not_null(token, location);
     auto type = token->type();
-    assert_equal(token::token_type::STRING_LITERAL, type);
+    assert_equal(token::token_type::STRING_LITERAL, type, location);
     auto string_token = static_cast<string_literal_token*>(token.get());
-    assert_equal(string(expected_value), string_token->value());
-    assert_equal((size_t)0, log.messages().size());
+    assert_equal(string(expected_value), string_token->value(), location);
+    assert_equal((size_t)0, log.messages().size(), location);
+}
+
+void token_reader_test_utility::single_token_clean_test(
+    long expected_value,
+    const std::string& input,
+    const char* expected_units,
+    const std::source_location& location)
+{
+    test_message_log log;
+    std::istringstream ss(input);
+    auto reader = create_token_reader(ss, log, location);
+    auto token = reader->read();
+    assert_not_null(token, location);
+    auto type = token->type();
+    assert_equal(token::token_type::NUMERIC_LITERAL, type, location);
+    auto numeric_token = static_cast<numeric_literal_token*>(token.get());
+    assert_equal(true, numeric_token->is_integer());
+    assert_equal(expected_value, numeric_token->integer_value(), location);
+
+    if (expected_units != nullptr)
+    {
+        assert_equal(string(expected_units), numeric_token->unit(), location);
+    }
+
+    assert_equal((size_t)0, log.messages().size(), location);
+}
+
+void token_reader_test_utility::single_token_clean_test(
+    double expected_value,
+    const std::string& input,
+    const char* expected_units,
+    const std::source_location& location)
+{
+    test_message_log log;
+    std::istringstream ss(input);
+    auto reader = create_token_reader(ss, log, location);
+    auto token = reader->read();
+    assert_not_null(token, location);
+    auto type = token->type();
+    assert_equal(token::token_type::NUMERIC_LITERAL, type, location);
+    auto numeric_token = static_cast<numeric_literal_token*>(token.get());
+    assert_equal(false, numeric_token->is_integer(), location);
+    assert_equal(expected_value, numeric_token->double_value(), location);
+
+    if (expected_units != nullptr)
+    {
+        assert_equal(string(expected_units), numeric_token->unit(), location);
+    }
+
+    assert_equal((size_t)0, log.messages().size(), location);
 }

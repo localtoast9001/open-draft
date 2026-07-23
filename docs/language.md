@@ -52,7 +52,10 @@ Examples:
 * `3.14㎭` - 3.14 radians.
 * `0x1c_cm` - 0x1c (28) centimetres.
 * `0x1ccm` - 0x1cc (460) metres.
-* `0x5_ft` - 5 feet.
+* `0x5_ft` - 5 feet.  
+* `5_'` - 5 feet.
+* `10_°` - 10 degrees.
+* `2_㎭` - 2 radians.
 
 ### String Literal
 A string literal starts with `"` and ends with `"`. Unterminated strings generate an error condition during lexical analysis. The sequence of characters inside the string can be one of the following:
