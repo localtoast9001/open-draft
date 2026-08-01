@@ -22,7 +22,7 @@ namespace opendraft::lang
         SYMBOL_TILDE,               // ~
         SYMBOL_PERCENT,             // %
         SYMBOL_AMPERSAND,           // &
-        SYMBOL_AND,                 // &&
+        SYMBOL_DOUBLE_AMPERSAND,    // &&
         SYMBOL_STAR,                // *
         SYMBOL_LEFT_PAREN,          // (
         SYMBOL_RIGHT_PAREN,         // )
@@ -37,7 +37,7 @@ namespace opendraft::lang
         SYMBOL_RIGHT_BRACE,         // }
         SYMBOL_SLASH,               // /
         SYMBOL_PIPE,                // |
-        SYMBOL_OR,                  // ||
+        SYMBOL_DOUBLE_PIPE,         // ||
         SYMBOL_COLON,               // :
         SYMBOL_SEMICOLON,           // ;
         SYMBOL_COMMA,               // ,
@@ -52,6 +52,7 @@ namespace opendraft::lang
         SYMBOL_DOT,                 // .
         SYMBOL_DOTDOT,              // ..
         SYMBOL_BANG,                // !
+        SYMBOL_CARET,               // ^
     };
 
     /**

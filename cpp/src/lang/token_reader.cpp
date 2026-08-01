@@ -315,7 +315,7 @@ std::shared_ptr<token> token_reader::read_symbol()
             {
                 end_source = current_source();
                 read_char();
-                sym = symbol::SYMBOL_AND;
+                sym = symbol::SYMBOL_DOUBLE_AMPERSAND;
             }
         }
 
@@ -328,7 +328,7 @@ std::shared_ptr<token> token_reader::read_symbol()
             {
                 end_source = current_source();
                 read_char();
-                sym = symbol::SYMBOL_OR;
+                sym = symbol::SYMBOL_DOUBLE_PIPE;
             }
         }
 
