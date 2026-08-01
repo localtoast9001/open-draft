@@ -371,27 +371,27 @@ public class Parser
     private ParameterDeclarationParseNode? ParseParameterDeclaration()
     {
         var start = this.Peek();
-        var nameToken = this.ExpectIdentifier();
-        if (nameToken == null)
+
+        TypeReferenceParseNode? type = this.ParseTypeReference();
+        if (type == null)
         {
             return null;
         }
 
-        TypeReferenceParseNode? type = null;
         var token = this.Peek();
-        if (token != null && Is(token, Symbol.Colon))
+        if (token != null && token.Token is IdentifierToken nameToken)
         {
-            this.Read();
-            type = this.ParseTypeReference();
-            if (type == null)
-            {
-                return null;
-            }
+            _ = this.Read();
+        }
+        else
+        {
+            nameToken = (IdentifierToken)type.Start;
+            type = null;
         }
 
         ExpressionParseNode? defaultValue = null;
         token = this.Peek();
-        if (token != null && Is(token, Symbol.Equals))
+        if (token != null && Is(token, Symbol.Assignment))
         {
             this.Read();
             defaultValue = this.ParseExpression();
@@ -696,7 +696,7 @@ public class Parser
             }
             else
             {
-                var statement = this.ParseStatement();
+                var statement = this.ParseCoreStatement();
                 if (statement == null)
                 {
                     return null;
@@ -919,7 +919,8 @@ public class Parser
         {
             if (typeReference.Names.Count != 1)
             {
-                // TODO: error. - Missing variable name.
+                this.log(MessageUtility.VariableNameExpectedAfterType(
+                    token?.Token, this.tokenReader.CurrentSource));
                 return null;
             }
 
@@ -986,7 +987,7 @@ public class Parser
 
     private StatementParseNode? ParseTraceStatement()
     {
-        var start = this.Peek();
+        var start = this.Read();
         if (start == null)
         {
             return null;
@@ -1002,9 +1003,6 @@ public class Parser
             Keyword.Debug => TraceStatementSeverity.Debug,
             _ => throw new InvalidOperationException("Internal Error: Invalid trace keyword."),
         };
-
-        // Read the trace keyword (Error, Warn, Info, Verbose, Debug)
-        this.Read();
 
         var expression = this.ParseExpression();
         if (expression == null)
