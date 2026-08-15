@@ -1,0 +1,20 @@
+﻿<program>
+  <imports></imports>
+  <interface name="IShape">
+    <template name="Draw">
+      <parameters>
+        <parameter name="x"></parameter>
+        <parameter name="y"></parameter>
+      </parameters>
+    </template>
+    <function name="GetWidth">
+      <parameters></parameters>
+    </function>
+    <function name="GetHeight">
+      <parameters></parameters>
+    </function>
+    <function name="ToString">
+      <parameters></parameters>
+    </function>
+  </interface>
+</program>

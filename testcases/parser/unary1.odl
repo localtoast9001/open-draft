@@ -1,0 +1,4 @@
+debug -a;
+debug ~a;
+debug !a;
+debug a * (b + c);

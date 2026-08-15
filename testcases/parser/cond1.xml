@@ -1,0 +1,16 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <conditional>
+      <condition>
+        <var name="a"></var>
+      </condition>
+      <true>
+        <var name="b"></var>
+      </true>
+      <false>
+        <var name="c"></var>
+      </false>
+    </conditional>
+  </debug>
+</program>

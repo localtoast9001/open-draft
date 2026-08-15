@@ -1,6 +1,8 @@
 <Solution>
+  <Project Path="odlang2xml/odlang2xml.csproj" />
   <Project Path="OpenDraft.Core.UnitTest/OpenDraft.Core.UnitTest.csproj" />
   <Project Path="OpenDraft.Core/OpenDraft.Core.csproj" />
+  <Project Path="OpenDraft.Lang.Tools/OpenDraft.Lang.Tools.csproj" />
   <Project Path="OpenDraft.Lang.UnitTest/OpenDraft.Lang.UnitTest.csproj" />
   <Project Path="OpenDraft.Lang/OpenDraft.Lang.csproj" />
 </Solution>

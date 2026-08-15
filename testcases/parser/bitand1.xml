@@ -1,0 +1,12 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <bitwiseAnd>
+      <bitwiseAnd>
+        <var name="a"></var>
+        <var name="b"></var>
+      </bitwiseAnd>
+      <var name="c"></var>
+    </bitwiseAnd>
+  </debug>
+</program>

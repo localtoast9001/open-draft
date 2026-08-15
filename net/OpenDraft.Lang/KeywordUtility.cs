@@ -30,6 +30,7 @@ internal static class KeywordUtility
             "function" => Keyword.Function,
             "if" => Keyword.If,
             "import" => Keyword.Import,
+            "in" => Keyword.In,
             "info" => Keyword.Info,
             "interface" => Keyword.Interface,
             "namespace" => Keyword.Namespace,

@@ -1,0 +1,78 @@
+﻿<program>
+  <imports></imports>
+  <for>
+    <conditions>
+      <condition>
+        <variableNames>
+          <name>element</name>
+        </variableNames>
+        <expression>
+          <call>
+            <target>
+              <var name="read"></var>
+            </target>
+            <arguments></arguments>
+          </call>
+        </expression>
+      </condition>
+    </conditions>
+    <block>
+      <if>
+        <condition>
+          <equal>
+            <var name="element"></var>
+            <integer value="0" />
+          </equal>
+        </condition>
+        <then>
+          <block>
+            <break />
+          </block>
+        </then>
+      </if>
+      <if>
+        <condition>
+          <or>
+            <lessThanOrEqual>
+              <var name="element"></var>
+              <string>A</string>
+            </lessThanOrEqual>
+            <greaterThanOrEqual>
+              <var name="element"></var>
+              <string>Z</string>
+            </greaterThanOrEqual>
+          </or>
+        </condition>
+        <then>
+          <block>
+            <warn>
+              <add>
+                <string>Unsupported char: </string>
+                <var name="element"></var>
+              </add>
+            </warn>
+            <continue />
+          </block>
+        </then>
+      </if>
+      <call>
+        <target>
+          <member name="Draw">
+            <target>
+              <index>
+                <target>
+                  <var name="glyphs"></var>
+                </target>
+                <sub>
+                  <var name="element"></var>
+                  <string>A</string>
+                </sub>
+              </index>
+            </target>
+          </member>
+        </target>
+        <arguments></arguments>
+      </call>
+    </block>
+  </for>
+</program>

@@ -1,0 +1,19 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <integer value="1" />
+  </debug>
+  <debug>
+    <decimal value="0.00010" />
+  </debug>
+  <debug></debug>
+  <debug>
+    <boolean value="true" />
+  </debug>
+  <debug>
+    <boolean value="false" />
+  </debug>
+  <debug>
+    <string>test</string>
+  </debug>
+</program>

@@ -1,0 +1,24 @@
+﻿<program>
+  <imports></imports>
+  <variable name="apple" type="Store.Display">
+    <object>
+      <member name="Text">
+        <string>Apple</string>
+      </member>
+      <member name="Price">
+        <decimal value="1.05" />
+      </member>
+      <member name="Icon">
+        <member name="Apple">
+          <target>
+            <member name="Fruit">
+              <target>
+                <var name="Icons"></var>
+              </target>
+            </member>
+          </target>
+        </member>
+      </member>
+    </object>
+  </variable>
+</program>

@@ -1,0 +1,12 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <shiftRight>
+      <shiftLeft>
+        <var name="a"></var>
+        <var name="b"></var>
+      </shiftLeft>
+      <var name="c"></var>
+    </shiftRight>
+  </debug>
+</program>

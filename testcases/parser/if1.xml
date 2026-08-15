@@ -1,0 +1,57 @@
+﻿<program>
+  <imports></imports>
+  <if>
+    <condition>
+      <greaterThan>
+        <var name="x"></var>
+        <var name="y"></var>
+      </greaterThan>
+    </condition>
+    <then>
+      <block>
+        <call>
+          <target>
+            <var name="rect"></var>
+          </target>
+          <arguments>
+            <argument>
+              <integer value="0" />
+            </argument>
+            <argument>
+              <integer value="0" />
+            </argument>
+            <argument>
+              <integer value="100" />
+            </argument>
+            <argument>
+              <integer value="100" />
+            </argument>
+          </arguments>
+        </call>
+      </block>
+    </then>
+    <else>
+      <block>
+        <call>
+          <target>
+            <var name="circle"></var>
+          </target>
+          <arguments>
+            <argument>
+              <integer value="0" />
+            </argument>
+            <argument>
+              <integer value="0" />
+            </argument>
+            <argument>
+              <integer value="100" />
+            </argument>
+            <argument>
+              <integer value="100" />
+            </argument>
+          </arguments>
+        </call>
+      </block>
+    </else>
+  </if>
+</program>

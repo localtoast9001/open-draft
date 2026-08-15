@@ -1,0 +1,9 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <in>
+      <var name="a"></var>
+      <var name="b"></var>
+    </in>
+  </debug>
+</program>

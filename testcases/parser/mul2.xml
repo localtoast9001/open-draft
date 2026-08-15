@@ -1,0 +1,12 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <mul>
+      <div>
+        <var name="a"></var>
+        <var name="b"></var>
+      </div>
+      <var name="c"></var>
+    </mul>
+  </debug>
+</program>

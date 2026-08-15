@@ -1,0 +1,4 @@
+if (x > y)
+    templ1();
+else
+    templ2();

@@ -1,0 +1,16 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <array>
+      <row>
+        <integer value="1" />
+      </row>
+      <row>
+        <integer value="2" />
+      </row>
+      <row>
+        <integer value="3" />
+      </row>
+    </array>
+  </debug>
+</program>

@@ -1,0 +1,12 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <notEqual>
+      <equal>
+        <var name="a"></var>
+        <var name="b"></var>
+      </equal>
+      <var name="c"></var>
+    </notEqual>
+  </debug>
+</program>

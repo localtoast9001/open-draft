@@ -1,0 +1,73 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <var name="a"></var>
+  </debug>
+  <debug>
+    <member name="c">
+      <target>
+        <member name="b">
+          <target>
+            <var name="a"></var>
+          </target>
+        </member>
+      </target>
+    </member>
+  </debug>
+  <debug>
+    <member name="c">
+      <target>
+        <index>
+          <target>
+            <member name="b">
+              <target>
+                <call>
+                  <target>
+                    <var name="a"></var>
+                  </target>
+                  <arguments></arguments>
+                </call>
+              </target>
+            </member>
+          </target>
+          <integer value="0" />
+        </index>
+      </target>
+    </member>
+  </debug>
+  <debug>
+    <call>
+      <target>
+        <index>
+          <target>
+            <call>
+              <target>
+                <call>
+                  <target>
+                    <var name="a"></var>
+                  </target>
+                  <arguments>
+                    <argument>
+                      <integer value="1" />
+                    </argument>
+                  </arguments>
+                </call>
+              </target>
+              <arguments>
+                <argument>
+                  <integer value="2" />
+                </argument>
+              </arguments>
+            </call>
+          </target>
+          <integer value="3" />
+        </index>
+      </target>
+      <arguments>
+        <argument>
+          <integer value="4" />
+        </argument>
+      </arguments>
+    </call>
+  </debug>
+</program>

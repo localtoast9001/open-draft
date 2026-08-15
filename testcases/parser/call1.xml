@@ -1,0 +1,22 @@
+﻿<program>
+  <imports></imports>
+  <call>
+    <target>
+      <var name="rect"></var>
+    </target>
+    <arguments>
+      <argument name="x">
+        <integer value="0" />
+      </argument>
+      <argument name="y">
+        <integer value="0" />
+      </argument>
+      <argument name="w">
+        <integer value="5" />
+      </argument>
+      <argument name="h">
+        <integer value="5" />
+      </argument>
+    </arguments>
+  </call>
+</program>

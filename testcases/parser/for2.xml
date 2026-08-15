@@ -1,0 +1,31 @@
+﻿<program>
+  <imports></imports>
+  <for>
+    <conditions>
+      <condition>
+        <variableNames>
+          <name>x</name>
+          <name>y</name>
+        </variableNames>
+        <expression>
+          <var name="points"></var>
+        </expression>
+      </condition>
+    </conditions>
+    <block>
+      <call>
+        <target>
+          <var name="draw"></var>
+        </target>
+        <arguments>
+          <argument>
+            <var name="x"></var>
+          </argument>
+          <argument>
+            <var name="y"></var>
+          </argument>
+        </arguments>
+      </call>
+    </block>
+  </for>
+</program>

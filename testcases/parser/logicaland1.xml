@@ -1,0 +1,15 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <and>
+      <and>
+        <and>
+          <var name="a"></var>
+          <var name="b"></var>
+        </and>
+        <var name="c"></var>
+      </and>
+      <var name="d"></var>
+    </and>
+  </debug>
+</program>
