@@ -1,0 +1,6 @@
+interface IShape {
+    template Draw(x, y);
+    function GetWidth();
+    function GetHeight();
+    function ToString();
+}

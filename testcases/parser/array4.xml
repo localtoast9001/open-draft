@@ -1,0 +1,22 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <array>
+      <row>
+        <integer value="1" />
+        <integer value="2" />
+        <integer value="3" />
+      </row>
+      <row>
+        <integer value="4" />
+        <integer value="5" />
+        <integer value="6" />
+      </row>
+      <row>
+        <integer value="7" />
+        <integer value="8" />
+        <integer value="9" />
+      </row>
+    </array>
+  </debug>
+</program>

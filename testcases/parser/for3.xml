@@ -1,0 +1,62 @@
+﻿<program>
+  <imports></imports>
+  <for>
+    <conditions>
+      <condition>
+        <variableNames>
+          <name>x</name>
+        </variableNames>
+        <expression>
+          <call>
+            <target>
+              <var name="range"></var>
+            </target>
+            <arguments>
+              <argument>
+                <integer value="0" />
+              </argument>
+              <argument>
+                <integer value="9" />
+              </argument>
+            </arguments>
+          </call>
+        </expression>
+      </condition>
+      <condition>
+        <variableNames>
+          <name>y</name>
+        </variableNames>
+        <expression>
+          <call>
+            <target>
+              <var name="range"></var>
+            </target>
+            <arguments>
+              <argument>
+                <integer value="0" />
+              </argument>
+              <argument>
+                <integer value="4" />
+              </argument>
+            </arguments>
+          </call>
+        </expression>
+      </condition>
+    </conditions>
+    <block>
+      <call>
+        <target>
+          <var name="DrawThing"></var>
+        </target>
+        <arguments>
+          <argument>
+            <var name="x"></var>
+          </argument>
+          <argument>
+            <var name="y"></var>
+          </argument>
+        </arguments>
+      </call>
+    </block>
+  </for>
+</program>

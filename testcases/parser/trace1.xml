@@ -1,0 +1,18 @@
+﻿<program>
+  <imports></imports>
+  <error>
+    <string>This is an error!</string>
+  </error>
+  <warn>
+    <string>This is a warning.</string>
+  </warn>
+  <info>
+    <string>This is an informational message.</string>
+  </info>
+  <verbose>
+    <string>This is a verbose message.</string>
+  </verbose>
+  <debug>
+    <string>This is a debug message.</string>
+  </debug>
+</program>

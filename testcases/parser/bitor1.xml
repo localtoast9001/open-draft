@@ -1,0 +1,12 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <bitwiseOr>
+      <bitwiseOr>
+        <var name="a"></var>
+        <var name="b"></var>
+      </bitwiseOr>
+      <var name="c"></var>
+    </bitwiseOr>
+  </debug>
+</program>

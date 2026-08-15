@@ -1,0 +1,18 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <add>
+      <add>
+        <mul>
+          <integer value="2" />
+          <var name="a"></var>
+        </mul>
+        <mul>
+          <integer value="3" />
+          <var name="b"></var>
+        </mul>
+      </add>
+      <var name="c"></var>
+    </add>
+  </debug>
+</program>

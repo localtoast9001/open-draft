@@ -1,0 +1,12 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <bitwiseXor>
+      <bitwiseXor>
+        <var name="a"></var>
+        <var name="b"></var>
+      </bitwiseXor>
+      <var name="c"></var>
+    </bitwiseXor>
+  </debug>
+</program>

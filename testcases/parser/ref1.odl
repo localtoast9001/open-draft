@@ -1,0 +1,4 @@
+debug a;
+debug a.b.c;
+debug a().b[0].c;
+debug a(1)(2)[3](4);

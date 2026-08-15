@@ -1,0 +1,18 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <lessThanOrEqual>
+      <greaterThanOrEqual>
+        <lessThan>
+          <greaterThan>
+            <var name="a"></var>
+            <var name="b"></var>
+          </greaterThan>
+          <var name="c"></var>
+        </lessThan>
+        <var name="d"></var>
+      </greaterThanOrEqual>
+      <var name="e"></var>
+    </lessThanOrEqual>
+  </debug>
+</program>

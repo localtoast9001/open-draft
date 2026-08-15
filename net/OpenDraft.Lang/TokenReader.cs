@@ -257,6 +257,11 @@ public class TokenReader : IDisposable
                 return new SymbolToken(
                     startSourceRef,
                     Symbol.RightBracket);
+            case ':':
+                _ = this.ReadChar();
+                return new SymbolToken(
+                    startSourceRef,
+                    Symbol.Colon);
             case ';':
                 _ = this.ReadChar();
                 return new SymbolToken(
@@ -347,6 +352,13 @@ public class TokenReader : IDisposable
                             startSourceRef,
                             Symbol.LessThanOrEqual);
                     }
+                    else if (ch == '<')
+                    {
+                        _ = this.ReadChar();
+                        return new SymbolToken(
+                            startSourceRef,
+                            Symbol.DoubleLessThan);
+                    }
 
                     return new SymbolToken(
                         startSourceRef,
@@ -363,6 +375,13 @@ public class TokenReader : IDisposable
                         return new SymbolToken(
                             startSourceRef,
                             Symbol.GreaterThanOrEqual);
+                    }
+                    else if (ch == '>')
+                    {
+                        _ = this.ReadChar();
+                        return new SymbolToken(
+                            startSourceRef,
+                            Symbol.DoubleGreaterThan);
                     }
 
                     return new SymbolToken(
@@ -386,6 +405,46 @@ public class TokenReader : IDisposable
                         startSourceRef,
                         Symbol.Question);
                 }
+
+            case '&':
+                {
+                    _ = this.ReadChar();
+                    ch = this.PeekChar();
+                    if (ch == '&')
+                    {
+                        _ = this.ReadChar();
+                        return new SymbolToken(
+                            startSourceRef,
+                            Symbol.DoubleAmpersand);
+                    }
+
+                    return new SymbolToken(
+                        startSourceRef,
+                        Symbol.Ampersand);
+                }
+
+            case '|':
+                {
+                    _ = this.ReadChar();
+                    ch = this.PeekChar();
+                    if (ch == '|')
+                    {
+                        _ = this.ReadChar();
+                        return new SymbolToken(
+                            startSourceRef,
+                            Symbol.DoublePipe);
+                    }
+
+                    return new SymbolToken(
+                        startSourceRef,
+                        Symbol.Pipe);
+                }
+
+            case '~':
+                _ = this.ReadChar();
+                return new SymbolToken(
+                    startSourceRef,
+                    Symbol.Tilde);
 
             default:
                 break;

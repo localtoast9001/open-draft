@@ -1,0 +1,32 @@
+﻿<program>
+  <imports></imports>
+  <variable name="pt" type="point">
+    <mul>
+      <var name="r"></var>
+      <array>
+        <row>
+          <call>
+            <target>
+              <var name="cos"></var>
+            </target>
+            <arguments>
+              <argument>
+                <var name="p"></var>
+              </argument>
+            </arguments>
+          </call>
+          <call>
+            <target>
+              <var name="sin"></var>
+            </target>
+            <arguments>
+              <argument>
+                <var name="p"></var>
+              </argument>
+            </arguments>
+          </call>
+        </row>
+      </array>
+    </mul>
+  </variable>
+</program>

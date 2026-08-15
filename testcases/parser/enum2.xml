@@ -1,0 +1,17 @@
+﻿<program>
+  <imports></imports>
+  <enum name="Fruit">
+    <member name="Apple" value="0"></member>
+    <member name="Banana"></member>
+    <member name="Cherry"></member>
+    <member name="Grape" value="5"></member>
+    <member name="Lemon" value="11"></member>
+    <member name="Melon"></member>
+    <member name="Orange"></member>
+    <member name="Plum"></member>
+    <member name="Raspberry"></member>
+    <member name="Strawberry" value="20"></member>
+    <member name="Tangerine"></member>
+    <member name="Watermelon"></member>
+  </enum>
+</program>

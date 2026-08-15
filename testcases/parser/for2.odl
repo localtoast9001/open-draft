@@ -1,0 +1,3 @@
+for (x, y : points) {
+    draw(x, y);
+}

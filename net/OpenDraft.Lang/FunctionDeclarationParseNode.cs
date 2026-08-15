@@ -21,16 +21,10 @@ public class FunctionDeclarationParseNode : InterfaceMemberParseNode
         IEnumerable<ParameterDeclarationParseNode> parameters,
         Token start,
         IEnumerable<CommentToken> precedingComments)
-        : base(start, precedingComments)
+        : base(name, start, precedingComments)
     {
-        this.Name = name;
         this.Parameters = parameters.ToList().AsReadOnly();
     }
-
-    /// <summary>
-    /// Gets the name of the function.
-    /// </summary>
-    public string Name { get; }
 
     /// <summary>
     /// Gets the parameters of the function.

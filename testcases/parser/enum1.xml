@@ -1,0 +1,8 @@
+﻿<program>
+  <imports></imports>
+  <enum name="Color">
+    <member name="Red"></member>
+    <member name="Green"></member>
+    <member name="Blue"></member>
+  </enum>
+</program>

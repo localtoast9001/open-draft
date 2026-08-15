@@ -1,0 +1,23 @@
+﻿<program>
+  <imports></imports>
+  <function name="LengthSq">
+    <parameters>
+      <parameter name="x"></parameter>
+      <parameter name="y"></parameter>
+    </parameters>
+    <block>
+      <return>
+        <add>
+          <mul>
+            <var name="x"></var>
+            <var name="x"></var>
+          </mul>
+          <mul>
+            <var name="y"></var>
+            <var name="y"></var>
+          </mul>
+        </add>
+      </return>
+    </block>
+  </function>
+</program>

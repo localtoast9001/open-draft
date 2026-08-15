@@ -1,0 +1,14 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <add>
+      <add>
+        <var name="a"></var>
+        <var name="b"></var>
+      </add>
+      <neg>
+        <integer value="3" />
+      </neg>
+    </add>
+  </debug>
+</program>

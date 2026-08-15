@@ -1,0 +1,21 @@
+﻿<program>
+  <imports></imports>
+  <variable name="centerX">
+    <add>
+      <var name="left"></var>
+      <div>
+        <var name="width"></var>
+        <integer value="2" />
+      </div>
+    </add>
+  </variable>
+  <variable name="centerY">
+    <add>
+      <var name="top"></var>
+      <div>
+        <var name="height"></var>
+        <integer value="2" />
+      </div>
+    </add>
+  </variable>
+</program>

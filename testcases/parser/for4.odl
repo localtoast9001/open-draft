@@ -1,0 +1,12 @@
+for (element : read()) {
+    if (element == 0) {
+        break;
+    }
+
+    if (element <= "A" || element >= "Z") {
+        warn "Unsupported char: " + element;
+        continue;
+    }
+
+    glyphs[element - "A"].Draw();
+}

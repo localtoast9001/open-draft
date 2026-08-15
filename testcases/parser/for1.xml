@@ -1,0 +1,26 @@
+﻿<program>
+  <imports></imports>
+  <for>
+    <conditions>
+      <condition>
+        <variableNames>
+          <name>x</name>
+        </variableNames>
+        <expression>
+          <array>
+            <row>
+              <integer value="1" />
+              <integer value="2" />
+              <integer value="3" />
+            </row>
+          </array>
+        </expression>
+      </condition>
+    </conditions>
+    <block>
+      <debug>
+        <var name="x"></var>
+      </debug>
+    </block>
+  </for>
+</program>

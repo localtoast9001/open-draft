@@ -1,0 +1,49 @@
+﻿<program>
+  <imports></imports>
+  <template name="Stamp">
+    <parameters>
+      <parameter name="x"></parameter>
+      <parameter name="y"></parameter>
+    </parameters>
+    <block>
+      <call>
+        <target>
+          <var name="rect"></var>
+        </target>
+        <arguments>
+          <argument>
+            <var name="x"></var>
+          </argument>
+          <argument>
+            <var name="y"></var>
+          </argument>
+          <argument>
+            <integer value="100" />
+          </argument>
+          <argument>
+            <integer value="100" />
+          </argument>
+        </arguments>
+      </call>
+      <call>
+        <target>
+          <var name="circle"></var>
+        </target>
+        <arguments>
+          <argument>
+            <var name="x"></var>
+          </argument>
+          <argument>
+            <var name="y"></var>
+          </argument>
+          <argument>
+            <integer value="100" />
+          </argument>
+          <argument>
+            <integer value="100" />
+          </argument>
+        </arguments>
+      </call>
+    </block>
+  </template>
+</program>

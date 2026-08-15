@@ -1,0 +1,27 @@
+﻿<program>
+  <imports></imports>
+  <if>
+    <condition>
+      <greaterThan>
+        <var name="x"></var>
+        <var name="y"></var>
+      </greaterThan>
+    </condition>
+    <then>
+      <call>
+        <target>
+          <var name="templ1"></var>
+        </target>
+        <arguments></arguments>
+      </call>
+    </then>
+    <else>
+      <call>
+        <target>
+          <var name="templ2"></var>
+        </target>
+        <arguments></arguments>
+      </call>
+    </else>
+  </if>
+</program>

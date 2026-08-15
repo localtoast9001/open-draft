@@ -1,0 +1,27 @@
+﻿<program>
+  <imports></imports>
+  <debug>
+    <neg>
+      <var name="a"></var>
+    </neg>
+  </debug>
+  <debug>
+    <bitwiseNot>
+      <var name="a"></var>
+    </bitwiseNot>
+  </debug>
+  <debug>
+    <not>
+      <var name="a"></var>
+    </not>
+  </debug>
+  <debug>
+    <mul>
+      <var name="a"></var>
+      <add>
+        <var name="b"></var>
+        <var name="c"></var>
+      </add>
+    </mul>
+  </debug>
+</program>

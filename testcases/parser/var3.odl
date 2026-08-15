@@ -1,0 +1,5 @@
+Store.Display apple = {
+    Text = "Apple",
+    Price = 1.05,
+    Icon = Icons.Fruit.Apple
+}; 

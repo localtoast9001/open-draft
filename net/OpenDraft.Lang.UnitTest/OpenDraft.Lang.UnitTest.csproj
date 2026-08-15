@@ -20,7 +20,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="../../testcases/parser/**/*.odl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>testcases\parser\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </None>
+    <None Include="../../testcases/parser/**/*.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>testcases\parser\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\OpenDraft.Lang\OpenDraft.Lang.csproj" />
+    <ProjectReference Include="..\OpenDraft.Lang.Tools\OpenDraft.Lang.Tools.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,14 @@
+enum Fruit {
+    Apple = 0,
+    Banana,
+    Cherry,
+    Grape = 5,
+    Lemon = 11,
+    Melon,
+    Orange,
+    Plum,
+    Raspberry,
+    Strawberry = 20,
+    Tangerine,
+    Watermelon
+}

@@ -12,17 +12,25 @@ public class NamespaceParseNode : ProgramElementParseNode
     /// <summary>
     /// Initializes a new instance of the <see cref="NamespaceParseNode"/> class.
     /// </summary>
+    /// <param name="name">The name of the namespace.</param>
     /// <param name="namespaceMembers">The members of the namespace.</param>
     /// <param name="start">The starting token of the namespace declaration.</param>
     /// <param name="precedingComments">The comments preceding the namespace declaration.</param>
     public NamespaceParseNode(
+        string name,
         IEnumerable<ProgramElementParseNode> namespaceMembers,
         Token start,
         IEnumerable<CommentToken> precedingComments)
         : base(start, precedingComments)
     {
+        this.Name = name ?? throw new ArgumentNullException(nameof(name));
         this.NamespaceMembers = namespaceMembers.ToList().AsReadOnly();
     }
+
+    /// <summary>
+    /// Gets the name of the namespace.
+    /// </summary>
+    public string Name { get; }
 
     /// <summary>
     /// Gets the members of the namespace, which can include classes, interfaces, enums, and other namespaces.
