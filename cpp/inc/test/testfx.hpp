@@ -13,6 +13,7 @@
 #include <chrono>
 #include <source_location>
 #include <memory>
+#include <functional>
 
 namespace testfx
 {
@@ -30,6 +31,8 @@ namespace testfx
      */
     typedef void (test_class::*test_method)();
 
+    typedef std::function<void(test_class&)> test_method_func;
+
     /**
      * @brief Base class for all test classes.
      */
@@ -37,16 +40,11 @@ namespace testfx
     {
     public:
 
-        /**
-         * @brief Initializes the test class instances and registers them with the test runner.
-         * @param instances A map to hold the registered test class instances.
-         */
-        static void init_instances(std::map<std::string, test_class*>& instances);
-
         /** 
-         * Called by the framework to initialize the test class with the given test context. 
+         * Called by the framework to initialize the test class with the given test context.
+         * Override this method to use the test context to register dynamic test methods or set up test data. 
          */
-        void init(test_context& context);
+        virtual void init(test_context& context);
 
         /**
          * @brief Returns the name of the test class.
@@ -58,7 +56,8 @@ namespace testfx
          * @brief Returns the map of test methods associated with the test class.
          * @return A constant reference to the map of test methods.
          */
-        const std::map<std::string, test_method>& tests() const { return _tests; }
+        const std::map<std::string, test_method_func>& tests() const { return _tests; }
+
     protected:
         test_class(const std::string& name);
         virtual ~test_class() = default;
@@ -77,13 +76,31 @@ namespace testfx
          */
         void add(const std::string& name, test_method method);
 
+        /**
+         * @brief Adds a test method to the test class using a function object.
+         * @param name The name of the test method.
+         * @param method The function object representing the test method.
+         */
+        void add(const std::string& name, test_method_func method);
+
     private:
+        /**
+         * Access to test_runner to call init_instances() to register test_class instances with the test_runner.
+         */
+        friend class test_runner;
+
         static test_class* _head;
         test_class* _next;
 
         std::string _name;
-        std::map<std::string, test_method> _tests;
+        std::map<std::string, test_method_func> _tests;
         test_context* _context;
+
+        /**
+         * @brief Initializes the test class instances and registers them with the test runner.
+         * @param instances A map to hold the registered test class instances.
+         */
+        static void init_instances(std::map<std::string, test_class*>& instances);
     };
 
     /**
@@ -121,12 +138,14 @@ namespace testfx
 
         inline const std::string& get_test_run_id() const { return _test_run_id; }
         inline const std::string& get_test_data_path() const { return _test_data_path; }
+        inline const std::string& get_test_program_dir_path() const { return _test_program_dir_path; }
 
         void init();
 
     private:
         std::string _test_run_id;
         std::string _test_data_path;
+        std::string _test_program_dir_path;
 
         test_context(const test_context&) = delete;
         test_context& operator=(const test_context&) = delete;
@@ -161,7 +180,7 @@ namespace testfx
         void run_test_method(
             test_class& cls,
             const std::string& test_name,
-            test_method method,
+            const test_method_func& method,
             test_result& result);
 
         std::map<std::string, test_class*> _test_classes;
@@ -238,6 +257,12 @@ namespace testfx
     void assert_equal<double>(
         const double& expected,
         const double& actual,
+        const std::source_location& location);
+
+    template<>
+    void assert_equal<std::string>(
+        const std::string& expected,
+        const std::string& actual,
         const std::source_location& location);
 
     void assert_equal(

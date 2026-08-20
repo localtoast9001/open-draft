@@ -15,3 +15,8 @@ statement_parse_node::statement_parse_node(
     : program_element_parse_node(start, preceding_comments)
 {
 }
+
+bool statement_parse_node::is_statement() const
+{
+    return true;
+}

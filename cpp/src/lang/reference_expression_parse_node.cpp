@@ -20,3 +20,8 @@ shared_ptr<type_reference_parse_node> reference_expression_parse_node::to_type_r
 {
     return nullptr;
 }
+
+bool reference_expression_parse_node::is_reference_expression() const
+{
+    return true;
+}

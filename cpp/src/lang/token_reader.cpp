@@ -177,6 +177,11 @@ std::shared_ptr<token> token_reader::inner_read()
         {
             return read_decimal_literal(start_source, 0);
         }
+        else if (ch == '.')
+        {
+            read_char();
+            return std::make_shared<symbol_token>(start_source, symbol::SYMBOL_DOTDOT);
+        }
         else
         {
             return std::make_shared<symbol_token>(start_source, symbol::SYMBOL_DOT);
@@ -388,6 +393,9 @@ std::shared_ptr<token> token_reader::read_symbol()
         break;
     case ']':
         sym = symbol::SYMBOL_RIGHT_BRACKET;
+        break;
+    case '^':
+        sym = symbol::SYMBOL_CARET;
         break;
     default:
         sym = symbol::SYMBOL_UNDEFINED;

@@ -15,3 +15,8 @@ interface_member_parse_node::interface_member_parse_node(
     : parse_node(start, preceding_comments)
 {
 }
+
+bool interface_member_parse_node::is_interface_member() const
+{
+    return true;
+}

@@ -36,16 +36,40 @@ namespace testfx
         }
     }
 
+    template<>
+    void assert_equal<std::string>(
+        const std::string& expected,
+        const std::string& actual,
+        const std::source_location& location)
+    {
+        if (expected != actual)
+        {
+            int index = 0;
+            while (index < expected.size() && index < actual.size())
+            {
+                if (expected[index] != actual[index])
+                {
+                    break;
+                }
+
+                ++index;
+            }
+
+            std::ostringstream oss;
+            oss << 
+                "Assertion failed: expected " << expected.length() << " chars [" << expected <<
+                "], got " << actual.length() << " chars [..." << actual.substr(index) << "] (first difference at index " << index << ")";
+            throw assert_exception(oss.str(), location);
+        }        
+    }
+
     void assert_equal(
         const char* expected,
         const char* actual,
         const std::source_location& location)
     {
-        if (std::string(expected) != std::string(actual))
-        {
-            std::ostringstream oss;
-            oss << "Assertion failed: expected [" << expected << "], got [" << actual << "]";
-            throw assert_exception(oss.str(), location);
-        }
+        std::string expected_str(expected ? expected : "");
+        std::string actual_str(actual ? actual : "");
+        assert_equal<std::string>(expected_str, actual_str, location);
     }
 }

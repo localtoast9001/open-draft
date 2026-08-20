@@ -28,7 +28,7 @@ namespace testfx
     }
 
     test_context::test_context()
-        : _test_run_id(), _test_data_path()
+        : _test_run_id(), _test_data_path(), _test_program_dir_path()
     {
     }
 
@@ -47,6 +47,8 @@ namespace testfx
 
         // create a test data path based on the run id and the location of the test executable.
         std::filesystem::path base_path = executable_path.parent_path();
+        _test_program_dir_path = base_path.string();
+
         if (base_path.empty())
         {
             base_path = std::filesystem::path("test_data");

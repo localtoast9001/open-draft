@@ -15,3 +15,8 @@ expression_parse_node::expression_parse_node(
     : parse_node(start, preceding_comments)
 {
 }
+
+bool expression_parse_node::is_expression() const
+{
+    return true;
+}

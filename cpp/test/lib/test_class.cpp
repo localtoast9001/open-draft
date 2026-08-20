@@ -42,7 +42,13 @@ namespace testfx
 
     void test_class::add(const std::string& name, test_method method)
     {
-        // Implementation for adding a test method
+        add(
+            name,
+            std::mem_fn(method));
+    }
+
+    void test_class::add(const std::string& name, test_method_func method)
+    {
         _tests[name] = method;
     }
 }

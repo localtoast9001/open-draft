@@ -15,3 +15,8 @@ program_element_parse_node::program_element_parse_node(
     : parse_node(start, preceding_comments)
 {
 }
+
+bool program_element_parse_node::is_program_element() const
+{
+    return true;
+}
