@@ -103,7 +103,6 @@ namespace opendraft::lang
         PARSE_NODE_INDEX_EXPRESSION,
         PARSE_NODE_INTERFACE_MEMBER,
         PARSE_NODE_INTERFACE,
-        PARSE_NODE_LITERAL_EXPRESSION,
         PARSE_NODE_LOGICAL_AND_EXPRESSION,
         PARSE_NODE_LOGICAL_OR_EXPRESSION,
         PARSE_NODE_MEMBER_REFERENCE_EXPRESSION,
@@ -156,6 +155,36 @@ namespace opendraft::lang
          * @return The type of the parse node.
          */
         virtual parse_node_type type() const = 0;
+
+        /**
+         * @brief Determines if the parse node is an expression.
+         * @return true if the parse node is an expression; otherwise, false.
+         */
+        virtual bool is_expression() const;
+
+        /**
+         * @brief Determines if the parse node is a statement.
+         * @return true if the parse node is a statement; otherwise, false.
+         */
+        virtual bool is_statement() const;
+
+        /**
+         * @brief Determines if the parse node is a program element.
+         * @return true if the parse node is a program element; otherwise, false.
+         */
+        virtual bool is_program_element() const;
+
+        /**
+         * @brief Determines if the parse node is an interface member.
+         * @return true if the parse node is an interface member; otherwise, false.
+         */
+        virtual bool is_interface_member() const;
+
+        /**
+         * @brief Determines if the parse node is a reference expression.
+         * @return true if the parse node is a reference expression; otherwise, false.
+         */
+        virtual bool is_reference_expression() const;
     
     protected:
         parse_node(
@@ -198,6 +227,9 @@ namespace opendraft::lang
      */
     class program_element_parse_node : public parse_node
     {
+    public:
+        virtual bool is_program_element() const override;
+
     protected:
         program_element_parse_node(
             const std::shared_ptr<token>& start,
@@ -209,6 +241,9 @@ namespace opendraft::lang
      */
     class interface_member_parse_node : public parse_node
     {
+    public:
+        virtual bool is_interface_member() const override;
+
     protected:
         interface_member_parse_node(
             const std::shared_ptr<token>& start,
@@ -220,6 +255,9 @@ namespace opendraft::lang
      */
     class statement_parse_node : public program_element_parse_node
     {
+    public:
+        virtual bool is_statement() const override;
+
     protected:
         statement_parse_node(
             const std::shared_ptr<token>& start,
@@ -231,6 +269,9 @@ namespace opendraft::lang
      */
     class expression_parse_node : public parse_node
     {
+    public:
+        virtual bool is_expression() const override;
+
     protected:
         expression_parse_node(
             const std::shared_ptr<token>& start,
@@ -243,6 +284,8 @@ namespace opendraft::lang
     class reference_expression_parse_node : public expression_parse_node
     {
     public:
+        virtual bool is_reference_expression() const override;
+
         /**
          * @brief Converts the reference expression to a type reference parse node (if supported).
          * @return A shared pointer to the type reference parse node, or nullptr if the conversion is not supported.

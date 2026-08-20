@@ -22,3 +22,18 @@ parse_node_type call_statement_parse_node::type() const
 {
     return parse_node_type::PARSE_NODE_CALL_STATEMENT;
 }
+
+std::shared_ptr<call_statement_parse_node> call_statement_parse_node::from_call_expression(
+    const std::shared_ptr<call_expression_parse_node>& call_expression)
+{
+    if (!call_expression)
+    {
+        return nullptr;
+    }
+
+    return make_shared<call_statement_parse_node>(
+        call_expression->target(),
+        call_expression->arguments(),
+        call_expression->start(),
+        call_expression->preceding_comments());
+}

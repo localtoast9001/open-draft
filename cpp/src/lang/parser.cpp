@@ -467,14 +467,15 @@ shared_ptr<enum_member_parse_node> parser::parse_enum_member()
         {
             return nullptr;
         }
+
         value = value_token->integer_value();
         has_value = true;
     }
 
     return make_shared<enum_member_parse_node>(
         name_token->name(),
-        has_value,
         value,
+        has_value,
         start->token(),
         start->preceding_comments());
 }
@@ -857,16 +858,19 @@ shared_ptr<for_statement_parse_node> parser::parse_for_statement()
         return nullptr;
     }
 
+    conditions.push_back(condition);
+
     auto token = peek();
     while (token && is(token, symbol::SYMBOL_SEMICOLON))
     {
         read();
-        conditions.push_back(condition);
         condition = parse_for_condition();
         if (!condition)
         {
             return nullptr;
         }
+
+        conditions.push_back(condition);
 
         token = peek();
     }
@@ -1301,6 +1305,7 @@ shared_ptr<expression_parse_node> parser::parse_relational_expression()
         is(token, symbol::SYMBOL_GREATER_THAN_EQUALS) ||
         is(token, keyword::KEYWORD_IN)))
     {
+        read();
         relational_operator op = relational_operator::RELATIONAL_OPERATOR_IN_SET;
         if(!is(token, keyword::KEYWORD_IN))
         {
@@ -1520,6 +1525,11 @@ shared_ptr<expression_parse_node> parser::parse_unary_expression()
                 op = unary_operator::UNARY_OPERATOR_BITWISE_NOT;
                 has_operator = true;
                 break;
+            default:
+                // Prevents warning for unhandled values.
+                op = unary_operator::UNARY_OPERATOR_BITWISE_NOT;
+                has_operator = false;
+                break;
         }
 
         read();
@@ -1591,8 +1601,8 @@ shared_ptr<expression_parse_node> parser::parse_unary_expression()
         auto numeric_token = static_pointer_cast<numeric_literal_token>(token->token());
         read();
         return make_shared<numeric_literal_expression_parse_node>(
-            numeric_token->integer_value(),
             numeric_token->double_value(),
+            numeric_token->integer_value(),
             numeric_token->is_integer(),
             numeric_token,
             token->preceding_comments());

@@ -84,7 +84,7 @@ namespace testfx
         for (const auto& test_pair : cls.tests())
         {
             const std::string& test_name = test_pair.first;
-            test_method method = test_pair.second;
+            const test_method_func& method = test_pair.second;
 
             test_result result;
             auto full_test_name = cls.name() + "::" + test_name;
@@ -103,7 +103,7 @@ namespace testfx
     void test_runner::run_test_method(
         test_class& cls,
         const std::string& test_name,
-        test_method method,
+        const test_method_func& method,
         test_result& result)
     {
         // Start timing the test method execution
@@ -113,7 +113,7 @@ namespace testfx
 
         try
         {
-            (cls.*method)(); // Call the test method
+            method(cls); // Call the test method
             test_passed = true;
         }
         catch (const assert_exception& e)

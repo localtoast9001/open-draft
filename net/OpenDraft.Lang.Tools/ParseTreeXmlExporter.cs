@@ -537,6 +537,12 @@ public class ParseTreeXmlExporter : IDisposable
             return;
         }
 
+        if (expression is NullExpressionParseNode nullExpression)
+        {
+            this.WriteLiteralExpression(nullExpression);
+            return;
+        }
+
         if (expression is ObjectExpressionParseNode objectExpression)
         {
             this.WriteObjectExpression(objectExpression);
@@ -770,6 +776,12 @@ public class ParseTreeXmlExporter : IDisposable
         this.writer.WriteFullEndElement(); // end elementName
     }
 
+    private void WriteLiteralExpression(NullExpressionParseNode nullExpression)
+    {
+        this.writer.WriteStartElement("null");
+        this.writer.WriteEndElement(); // end "null"
+    }
+
     private void WriteObjectExpression(ObjectExpressionParseNode objectExpression)
     {
         this.writer.WriteStartElement("object");
@@ -864,7 +876,8 @@ public class ParseTreeXmlExporter : IDisposable
     private void WriteLiteralExpression(LiteralExpressionParseNode<decimal> decimalExpression)
     {
         this.writer.WriteStartElement("decimal");
-        this.writer.WriteAttributeString("value", decimalExpression.Value.ToString());
+        var value = decimalExpression.Value.ToString("G29", System.Globalization.CultureInfo.InvariantCulture);
+        this.writer.WriteAttributeString("value", value);
         this.writer.WriteEndElement(); // end "decimal"
     }
 }

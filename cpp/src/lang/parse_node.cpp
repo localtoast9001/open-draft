@@ -15,3 +15,48 @@ parse_node::parse_node(
     : _start(start), _preceding_comments(preceding_comments)
 {
 }
+
+/**
+ * @brief Determines if the parse node is an expression.
+ * @return true if the parse node is an expression; otherwise, false.
+ */
+bool parse_node::is_expression() const
+{
+    return false;
+}
+
+/**
+ * @brief Determines if the parse node is a statement.
+ * @return true if the parse node is a statement; otherwise, false.
+ */
+bool parse_node::is_statement() const
+{
+    return false;
+}
+
+/**
+ * @brief Determines if the parse node is a program element.
+ * @return true if the parse node is a program element; otherwise, false.
+ */
+bool parse_node::is_program_element() const
+{
+    return false;
+}
+
+/**
+ * @brief Determines if the parse node is an interface member.
+ * @return true if the parse node is an interface member; otherwise, false.
+ */
+bool parse_node::is_interface_member() const
+{
+    return false;
+}
+
+/**
+ * @brief Determines if the parse node is a reference expression.
+ * @return true if the parse node is a reference expression; otherwise, false.
+ */
+bool parse_node::is_reference_expression() const
+{
+    return false;
+}
