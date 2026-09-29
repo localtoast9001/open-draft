@@ -27,7 +27,7 @@ The design goals of the OpenDraft language (ODLang) are as follows:
 1. Allow for calculated values to be recoverable from the resulting output, like getting the point that is the result of intersecting lines, so it can be used as an input or constraint to other geometry.
 1. Allow for both compilation and interpretation across multiple runtimes, like Java, .Net, or C.
 1. Allow for sharable, self-contained libraries to be defined with common functions or stencils for geometry.
-1. The language is weakly typed to minimize the tedium in specification of templates and functions.s
+1. The language is weakly typed to minimize the tedium in specification of templates and functions.
 
 The language is a functional language organized into scopes that define **templates**. The main body of a program is also a template. Templates can take a number of arguments as input and produce multiple return values as output. 
 
