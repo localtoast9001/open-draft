@@ -8,8 +8,19 @@
 
 using namespace opendraft::core;
 
-class_type::class_type(const std::string& name)
-    : type(name)
+class_type::class_type(
+    const std::string& name,
+    const std::shared_ptr<type>& base_type,
+    std::initializer_list<field> fields,
+    std::initializer_list<field> static_fields,
+    std::initializer_list<std::shared_ptr<method_declaration>> methods,
+    std::initializer_list<std::shared_ptr<method_declaration>> static_methods)
+    : type(name),
+      _base_type(base_type),
+      _fields(fields),
+      _static_fields(static_fields),
+      _methods(methods),
+      _static_methods(static_methods)
 {
 }
 

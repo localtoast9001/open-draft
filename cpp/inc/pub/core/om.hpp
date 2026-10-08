@@ -13,13 +13,45 @@
 #include <memory>
 #include <string_view>
 #include <map>
+#include <initializer_list>
+#include <vector>
 
 namespace opendraft::core
 {
     // forward declarations.
     class type;
     class object;
+    class object_storage;
     class type_system;
+
+    /**
+     * @brief Underlying storage for an object.
+     */
+    class object_storage
+    {
+    public:
+        virtual ~object_storage() = default;
+
+        /**
+         * @brief Gets the length of the object along the specified dimension.
+         * @param dim The dimension for which to get the length.
+         * @return The length of the object along the specified dimension.
+         */
+        virtual long length(long dim) const = 0;
+
+        constexpr long length() const
+        {
+            return length(0);
+        }
+
+        virtual long get_integer(long ordinal) const = 0;
+        virtual double get_real(long ordinal) const = 0;
+        virtual uint8_t get_byte(long ordinal) const = 0;
+        virtual bool get_boolean(long ordinal) const = 0;
+        virtual std::string_view get_string(long ordinal) const = 0;
+
+        virtual std::shared_ptr<object> get_object(long ordinal) const = 0;
+    };
 
     /**
      * Core representation of data. 
@@ -27,44 +59,30 @@ namespace opendraft::core
     class object
     {
     public:
-        ~object();
+        ~object() = default;
 
         inline const type& type() const
         {
             return *_type;
         }
 
-        /**
-         * @brief Gets the length of the object along the specified dimension.
-         * @param dim The dimension for which to get the length.
-         * @return The length of the object along the specified dimension.
-         */
-        long length(long dim) const;
-
-        constexpr long length() const
+        inline const object_storage& storage() const
         {
-            return length(0);
+            return *_storage;
         }
 
-        long get_integer(long ordinal) const;
-        double get_real(long ordinal) const;
-        uint8_t get_byte(long ordinal) const;
-        bool get_boolean(long ordinal) const;
-        std::string_view get_string(long ordinal) const;
-
-        std::shared_ptr<object> get_object(long ordinal) const;
-
-        static std::shared_ptr<object> create(bool value);
-        static std::shared_ptr<object> create(long value);
-        static std::shared_ptr<object> create(double value);
-        static std::shared_ptr<object> create(uint8_t value);
-        static std::shared_ptr<object> create(const char* value);
+        object(
+            const std::shared_ptr<opendraft::core::type>& type,
+            const std::shared_ptr<object_storage>& storage)
+            : _type(type), _storage(storage)
+        {
+        }
 
     private:
         std::shared_ptr<opendraft::core::type> _type;
-        long _length;
-        uint8_t _data[];
+        std::shared_ptr<object_storage> _storage;
 
+        // Disable copy and assignment.
         object(const object&) = delete;
         object& operator=(const object&) = delete;
     };
@@ -95,7 +113,7 @@ namespace opendraft::core
         // Key-value collections.
         TYPE_KIND_DICTIONARY,
         
-        // Interfaces defining contracts for classes.
+        // Interface contracts for classes.
         TYPE_KIND_INTERFACE,
     };
 
@@ -171,17 +189,168 @@ namespace opendraft::core
     };
 
     /**
+     * @brief Represents a field in a user-defined class.
+     */
+    class field
+    {
+    public:
+        field(
+            const std::string& name, 
+            const std::shared_ptr<type>& field_type);
+        ~field() = default;
+        field(const field&) = default;
+        field(field&&) = default;
+
+        field& operator=(const field&) = default;
+        field& operator=(field&&) = default;
+
+        inline const std::string& name() const
+        {
+            return _name;
+        }
+
+        inline const std::shared_ptr<type>& field_type() const
+        {
+            return _field_type;
+        }
+
+    private:
+        std::string _name;
+        std::shared_ptr<type> _field_type;
+    };
+
+    /**
+     * @brief A parameter declaration in a template or function.
+     */
+    class parameter_declaration
+    {
+    public:
+        parameter_declaration(
+            const std::string& name,
+            const std::shared_ptr<core::type>& type);
+        ~parameter_declaration() = default;
+        parameter_declaration(const parameter_declaration&) = default;
+        parameter_declaration(parameter_declaration&&) = default;
+
+        parameter_declaration& operator=(const parameter_declaration&) = default;
+        parameter_declaration& operator=(parameter_declaration&&) = default;
+
+        inline const std::string& name() const
+        {
+            return _name;
+        }
+
+        inline const std::shared_ptr<core::type>& type() const
+        {
+            return _type;
+        }
+
+    private:
+        std::string _name;
+        std::shared_ptr<core::type> _type;
+    };
+
+    /**
+     * @brief Base declaration for functions and templates.
+     */
+    class method_declaration
+    {
+    public:
+        inline const std::string& name() const
+        {
+            return _name;
+        }
+
+        inline const std::vector<parameter_declaration>& parameters() const
+        {
+            return _parameters;
+        }
+
+    protected:
+        method_declaration(
+            const std::string& name,
+            const std::vector<parameter_declaration>& parameters);
+        virtual ~method_declaration() = default;
+
+    private:
+        std::string _name;
+        std::vector<parameter_declaration> _parameters;
+    };
+
+    /**
+     * @brief Represents a function declaration in the object model.
+     */
+    class function_declaration : public method_declaration
+    {
+    public:
+        function_declaration(
+            const std::string& name,
+            const std::vector<parameter_declaration>& parameters,
+            const std::shared_ptr<core::type>& return_type);
+
+        inline const std::shared_ptr<core::type>& return_type() const
+        {
+            return _return_type;
+        }
+
+    private:
+        std::shared_ptr<core::type> _return_type;
+    };
+
+    /**
+     * @brief Represents a template declaration in the object model.
+     */
+    class template_declaration : public method_declaration
+    {
+    public:
+        template_declaration(
+            const std::string& name,
+            const std::vector<parameter_declaration>& parameters);
+    };
+
+    /**
      * @brief Represents a user-defined class type in the object model.
      */
     class class_type : public type
     {
     public:
-        class_type(const std::string& name);
+        class_type(
+            const std::string& name,
+            const std::shared_ptr<type>& base_type,
+            std::initializer_list<field> fields,
+            std::initializer_list<field> static_fields,
+            std::initializer_list<std::shared_ptr<method_declaration>> methods,
+            std::initializer_list<std::shared_ptr<method_declaration>> static_methods);
         virtual ~class_type() = default;
 
         type_kind kind() const override;
 
+        inline const std::vector<field>& fields() const
+        {
+            return _fields;
+        }
+
+        inline const std::vector<std::shared_ptr<method_declaration>>& methods() const
+        {
+            return _methods;
+        }
+
+        inline const std::vector<std::shared_ptr<method_declaration>>& static_methods() const
+        {
+            return _static_methods;
+        }
+
+        inline const std::vector<field>& static_fields() const
+        {
+            return _static_fields;
+        }
+
     private:
+        std::shared_ptr<type> _base_type;
+        std::vector<field> _fields;
+        std::vector<field> _static_fields;
+        std::vector<std::shared_ptr<method_declaration>> _methods;
+        std::vector<std::shared_ptr<method_declaration>> _static_methods;
     };
 
     /**
@@ -253,6 +422,91 @@ namespace opendraft::core
             const std::shared_ptr<type>& element_type,
             size_t dimension_count = 1);
 
+        /**
+         * @brief Creates an object representing a boolean value.
+         */
+        std::shared_ptr<object> create(bool value);
+
+        /**
+         * @brief Creates an object representing an integer value.
+         */
+        std::shared_ptr<object> create(long value);
+
+        /**
+         * @brief Creates an object representing a real (double) value.
+         */
+        std::shared_ptr<object> create(double value);
+
+        /**
+         * @brief Creates an object representing a byte (uint8_t) value.
+         */
+        std::shared_ptr<object> create(uint8_t value);
+
+        /**
+         * @brief Creates an object representing a string value.
+         */
+        std::shared_ptr<object> create(const char* value);
+
+        /**
+         * @brief Creates an object representing a string value.
+         */
+        std::shared_ptr<object> create(const std::string_view& value);
+
+        /**
+         * @brief Creates an object representing an array of boolean values.
+         */
+        std::shared_ptr<object> create(std::initializer_list<bool> value);
+
+        /**
+         * @brief Creates an object representing an array of integer values.
+         */
+        std::shared_ptr<object> create(std::initializer_list<long> value);
+
+        /**
+         * @brief Creates an object representing an array of real (double) values.
+         */
+        std::shared_ptr<object> create(std::initializer_list<double> value);
+
+        /**
+         * @brief Creates an object representing an array of byte (uint8_t) values.
+         */
+        std::shared_ptr<object> create(std::initializer_list<uint8_t> value);
+
+        /**
+         * @brief Creates an object representing an array of objects of a specified type or a complex type.
+         */
+        std::shared_ptr<object> create(
+            const std::shared_ptr<core::type>& type,
+            std::initializer_list<std::shared_ptr<object>> values);
+
+        /**
+         * @brief Creates an object representing a multi-dimensional array of boolean values.
+         */
+        std::shared_ptr<object> create(
+            std::initializer_list<long> dimensions,
+            std::initializer_list<bool> value);
+
+        /**
+         * @brief Creates an object representing a multi-dimensional array of integer values.
+         */
+        std::shared_ptr<object> create(
+            std::initializer_list<long> dimensions,
+            std::initializer_list<long> value);
+
+        /**
+         * @brief Creates an object representing a multi-dimensional array of real (double) values.
+         */
+        std::shared_ptr<object> create(
+            std::initializer_list<long> dimensions,
+            std::initializer_list<double> value);
+
+        /**
+         * @brief Creates an object representing a multi-dimensional array of byte (uint8_t) values.
+         */
+        std::shared_ptr<object> create(
+            std::initializer_list<long> dimensions,
+            std::initializer_list<uint8_t> value);
+            
     private:
         std::shared_ptr<type> _boolean_type;
         std::shared_ptr<type> _integer_type;

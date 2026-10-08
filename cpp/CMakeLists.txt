@@ -23,8 +23,12 @@ add_subdirectory(src)
 add_subdirectory(test)
 
 add_custom_target(unit-tests
+	COMMAND $<TARGET_FILE:core_ut>
+	DEPENDS core_ut
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	COMMENT "Running C++ core unit tests"
 	COMMAND $<TARGET_FILE:lang_ut>
 	DEPENDS lang_ut
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	COMMENT "Running C++ unit tests"
+	COMMENT "Running C++ language unit tests"
 )

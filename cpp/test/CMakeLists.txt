@@ -2,3 +2,4 @@
 # Add test executables here as test files are added.
 add_subdirectory(lib)
 add_subdirectory(lang_ut)
+add_subdirectory(core_ut)
