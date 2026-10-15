@@ -22,12 +22,15 @@ endforeach()
 add_subdirectory(src)
 add_subdirectory(test)
 
+string(TIMESTAMP RUN_ID "%Y-%m-%d_%H-%M-%S")
+set(TEST_LOG_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../out/logs/cpp/${RUN_ID}")
+file(MAKE_DIRECTORY "${TEST_LOG_ROOT_DIR}")
 add_custom_target(unit-tests
-	COMMAND $<TARGET_FILE:core_ut>
+	COMMAND $<TARGET_FILE:core_ut> --report-file "${TEST_LOG_ROOT_DIR}/TEST-core_ut_report.xml"
 	DEPENDS core_ut
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT "Running C++ core unit tests"
-	COMMAND $<TARGET_FILE:lang_ut>
+	COMMAND $<TARGET_FILE:lang_ut> --report-file "${TEST_LOG_ROOT_DIR}/TEST-lang_ut_report.xml"
 	DEPENDS lang_ut
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT "Running C++ language unit tests"

@@ -14,11 +14,14 @@
 #include <source_location>
 #include <memory>
 #include <functional>
+#include <list>
 
 namespace testfx
 {
     class test_class;
     class test_runner;
+    class test_runner_options;
+    class test_report_writer;
     class test_context;
     class test_result;
     class test_summary;
@@ -152,6 +155,34 @@ namespace testfx
     };
 
     /**
+     * @brief Class representing options for the test runner.
+     */
+    class test_runner_options
+    {
+    public:
+        test_runner_options();
+        ~test_runner_options() = default;
+
+        /**
+         * @brief Initializes the test runner options based on command-line arguments.
+         * @param argc The number of command-line arguments.
+         * @param argv The array of command-line arguments.
+         * @return True if initialization was successful, false otherwise.
+         */
+        bool init(int argc, const char* argv[]);
+
+        inline const std::function<std::shared_ptr<test_report_writer>()>& report_writer_factory() const { return _report_writer_factory; }
+
+        inline void report_writer_factory(const std::function<std::shared_ptr<test_report_writer>()>& report_writer_factory) { _report_writer_factory = report_writer_factory; }
+    private:
+        std::function<std::shared_ptr<test_report_writer>()> _report_writer_factory;
+
+        // disable copy semantics
+        test_runner_options(const test_runner_options&) = delete;
+        test_runner_options& operator=(const test_runner_options&) = delete;
+    };
+
+    /**
      * @brief Class responsible for running all registered test classes and their associated test methods.
      */
     class test_runner
@@ -171,6 +202,18 @@ namespace testfx
          */
         static int run(int argc, const char* argv[]);
 
+        /**
+         * @brief Retrieves the test runner options.
+         * @return A reference to the test runner options.
+         */
+        inline test_runner_options& options() { return _options; }
+
+        /**
+         * @brief Retrieves the test runner options as a const reference.
+         * @return A const reference to the test runner options.
+         */
+        inline const test_runner_options& coptions() const { return _options; }
+
     private:
         bool run();
         void run_test_class(
@@ -183,7 +226,12 @@ namespace testfx
             const test_method_func& method,
             test_result& result);
 
+        test_runner_options _options;
         std::map<std::string, test_class*> _test_classes;
+
+        // disable copy semantics
+        test_runner(const test_runner&) = delete;
+        test_runner& operator=(const test_runner&) = delete;
     };
 
     /**
@@ -192,12 +240,15 @@ namespace testfx
     class test_result
     {
     public:
-        test_result();
+        test_result(const std::string& name);
+        test_result(const test_result& copy) = default;
+        test_result(test_result&& move) noexcept = default;
         ~test_result() = default;
 
         inline bool passed() const { return _passed; }
         inline const std::string& message() const { return _message; }
         inline const std::chrono::duration<double>& duration() const { return _duration; }
+        inline const std::string& name() const { return _name; }
 
         /**
          * @brief Marks the test result as passed.
@@ -212,7 +263,11 @@ namespace testfx
          */
         void fail(const std::string& message, const std::chrono::duration<double>& duration);
     
+        test_result& operator=(const test_result& copy) = default;
+        test_result& operator=(test_result&& move) noexcept = default;
+
     private:
+        std::string _name;
         bool _passed;
         std::string _message;
         std::chrono::duration<double> _duration;
@@ -224,20 +279,76 @@ namespace testfx
     class test_summary
     {
     public: 
-        test_summary();
+        test_summary(const std::string& class_name);
+        test_summary(const test_summary& copy) = default;
+        test_summary(test_summary&& move) noexcept = default;
         ~test_summary() = default;
 
+        inline const std::string& class_name() const { return _class_name; }
         inline int passed_tests() const { return _passed_tests; }
         inline int failed_tests() const { return _failed_tests; }
         inline const std::chrono::duration<double>& total_duration() const { return _total_duration; }
+        inline const std::list<test_result>& results() const { return _results; }
 
         void add_result(const test_result& result);
 
+        test_summary& operator=(const test_summary& copy) = default;
+        test_summary& operator=(test_summary&& move) noexcept = default;
+
     private:
+        std::string _class_name;
         int _passed_tests;
         int _failed_tests;
         std::chrono::duration<double> _total_duration;
+        std::list<test_result> _results;
     };
+
+    /**
+     * @brief Abstract base class for writing test reports.
+     */
+    class test_report_writer
+    {
+    public:
+        virtual ~test_report_writer() = default;
+
+        /**
+         * @brief Starts the test report file.
+         */
+        virtual void start_report() = 0;
+
+        /**
+         * @brief Ends the test report file.
+         */
+        virtual void end_report() = 0;
+
+        /**
+         * @brief Writes the test summary to the report.
+         * @param summary The test summary to write to the report.
+         * @note The implementation will interpret the summary information and translate it into the report format.
+         */
+        virtual void write(const test_summary& summary) = 0;
+
+    protected:
+        test_report_writer() = default;
+
+    private:
+        // disable copy semantics
+        test_report_writer(const test_report_writer&) = delete;
+        test_report_writer& operator=(const test_report_writer&) = delete;
+    };
+
+    /**
+     * @brief Creates a blank test report writer.
+     * @return A shared pointer to the created test report writer.
+     */
+    std::shared_ptr<test_report_writer> create_blank_report_writer();
+
+    /**
+     * @brief Creates a JUnit test report writer.
+     * @param path The file path for the JUnit report.
+     * @return A shared pointer to the created test report writer.
+     */
+    std::shared_ptr<test_report_writer> create_junit_report_writer(const std::string& path);
 
     template<typename T>
     void assert_equal(

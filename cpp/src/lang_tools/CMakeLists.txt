@@ -25,8 +25,9 @@ target_include_directories(opendraft_lang_tools
     ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/pub/core
     ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/pub/lang
   PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/private
     ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/private/core
     ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/private/lang
 )
 
-target_link_libraries(opendraft_lang_tools PUBLIC opendraft_core opendraft_lang)
+target_link_libraries(opendraft_lang_tools PUBLIC opendraft_core opendraft_lang xml)

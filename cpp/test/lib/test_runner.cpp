@@ -33,6 +33,11 @@ namespace testfx
     {
         // Implementation for running all registered test classes and their test methods
         test_runner runner;
+        if (!runner.options().init(argc, argv))
+        {
+            std::cerr << "Failed to initialize test runner options." << std::endl;
+            return 1;
+        }
         
         return runner.run() ? 0 : 1; // Return 0 for success, 1 for failure
     }
@@ -41,6 +46,8 @@ namespace testfx
     {
         test_context context;
         context.init();
+        auto report_writer = options().report_writer_factory()();
+        report_writer->start_report();
 
         int total_passed = 0;
         int total_failed = 0;
@@ -50,7 +57,7 @@ namespace testfx
         {
             test_class* cls = pair.second;
             cls->init(context);
-            test_summary summary;
+            test_summary summary(cls->name());
             run_test_class(*cls, summary);
             total_passed += summary.passed_tests();
             total_failed += summary.failed_tests();
@@ -61,6 +68,8 @@ namespace testfx
                 << summary.failed_tests() << " failed. ("
                 << us << "us)" 
                 << std::endl;
+
+            report_writer->write(summary);
 
             total_duration += summary.total_duration();
         }
@@ -74,6 +83,7 @@ namespace testfx
             << " failed. (" << total_us << "us)"
             << std::endl;
 
+        report_writer->end_report();
         return total_failed == 0; // Return true if all tests passed, false otherwise
     }
 
@@ -86,7 +96,7 @@ namespace testfx
             const std::string& test_name = test_pair.first;
             const test_method_func& method = test_pair.second;
 
-            test_result result;
+            test_result result(test_name);
             auto full_test_name = cls.name() + "::" + test_name;
 
             run_test_method(cls, test_name, method, result);

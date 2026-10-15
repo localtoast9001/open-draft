@@ -41,6 +41,9 @@ public:
     void create_multi_dim_integer_array_test();
     void create_multi_dim_real_array_test();
     void create_multi_dim_byte_array_test();
+    void get_standard_types_by_name_test();
+    void get_array_types_by_name_test();
+    void create_string_array_test();
 };
 
 type_system_test type_system_test::instance;
@@ -68,6 +71,9 @@ type_system_test::type_system_test()
     add("create_multi_dim_integer_array_test", (test_method)&type_system_test::create_multi_dim_integer_array_test);
     add("create_multi_dim_real_array_test", (test_method)&type_system_test::create_multi_dim_real_array_test);
     add("create_multi_dim_byte_array_test", (test_method)&type_system_test::create_multi_dim_byte_array_test);
+    add("get_standard_types_by_name_test", (test_method)&type_system_test::get_standard_types_by_name_test);
+    add("get_array_types_by_name_test", (test_method)&type_system_test::get_array_types_by_name_test);
+    add("create_string_array_test", (test_method)&type_system_test::create_string_array_test);
 }
 
 void type_system_test::instance_test()
@@ -82,6 +88,7 @@ void type_system_test::boolean_type_test()
     assert_equal(type_kind::TYPE_KIND_PRIMITIVE, bool_type->kind());
     auto primitive_bool_type = (primitive_type*)bool_type.get();
     assert_not_null(primitive_bool_type);
+    assert_equal(string("boolean"), bool_type->name());
     assert_equal(primitive_kind::PRIMITIVE_KIND_BOOLEAN, primitive_bool_type->primitive_kind());
 }
 
@@ -92,6 +99,7 @@ void type_system_test::integer_type_test()
     assert_equal(type_kind::TYPE_KIND_PRIMITIVE, int_type->kind());
     auto primitive_int_type = (primitive_type*)int_type.get();
     assert_not_null(primitive_int_type);
+    assert_equal(string("integer"), int_type->name());
     assert_equal(primitive_kind::PRIMITIVE_KIND_INTEGER, primitive_int_type->primitive_kind());
 }
 
@@ -102,6 +110,7 @@ void type_system_test::real_type_test()
     assert_equal(type_kind::TYPE_KIND_PRIMITIVE, real_type->kind());
     auto primitive_real_type = (primitive_type*)real_type.get();
     assert_not_null(primitive_real_type);
+    assert_equal(string("real"), real_type->name());
     assert_equal(primitive_kind::PRIMITIVE_KIND_REAL, primitive_real_type->primitive_kind());
 }
 
@@ -112,6 +121,7 @@ void type_system_test::byte_type_test()
     assert_equal(type_kind::TYPE_KIND_PRIMITIVE, byte_type->kind());
     auto primitive_byte_type = (primitive_type*)byte_type.get();
     assert_not_null(primitive_byte_type);
+    assert_equal(string("byte"), byte_type->name());
     assert_equal(primitive_kind::PRIMITIVE_KIND_BYTE, primitive_byte_type->primitive_kind());
 }
 
@@ -122,6 +132,7 @@ void type_system_test::string_type_test()
     assert_equal(type_kind::TYPE_KIND_PRIMITIVE, string_type->kind());
     auto primitive_string_type = (primitive_type*)string_type.get();
     assert_not_null(primitive_string_type);
+    assert_equal(string("string"), string_type->name());
     assert_equal(primitive_kind::PRIMITIVE_KIND_STRING, primitive_string_type->primitive_kind());
 }
 
@@ -279,4 +290,69 @@ void type_system_test::create_multi_dim_byte_array_test()
     assert_equal((uint8_t)0x02, multi_dim_byte_array_value->storage().get_byte(1));
     assert_equal((uint8_t)0x03, multi_dim_byte_array_value->storage().get_byte(2));
     assert_equal((uint8_t)0x04, multi_dim_byte_array_value->storage().get_byte(3));
+}
+
+void type_system_test::get_standard_types_by_name_test()
+{
+    auto bool_type = type_system::instance.get_type_by_name("boolean");
+    assert_not_null(bool_type);
+    assert_equal(string("boolean"), bool_type->name());
+    assert_equal(bool_type.get(), type_system::instance.boolean_type().get());
+    
+    auto int_type = type_system::instance.get_type_by_name("integer");
+    assert_not_null(int_type);
+    assert_equal(string("integer"), int_type->name());
+    assert_equal(int_type.get(), type_system::instance.integer_type().get());
+
+    auto real_type = type_system::instance.get_type_by_name("real");
+    assert_not_null(real_type);
+    assert_equal(string("real"), real_type->name());
+    assert_equal(real_type.get(), type_system::instance.real_type().get());
+
+    auto byte_type = type_system::instance.get_type_by_name("byte");
+    assert_not_null(byte_type);
+    assert_equal(string("byte"), byte_type->name());
+    assert_equal(byte_type.get(), type_system::instance.byte_type().get());
+
+    auto string_type = type_system::instance.get_type_by_name("string");
+    assert_not_null(string_type);
+    assert_equal(string("string"), string_type->name());
+    assert_equal(string_type.get(), type_system::instance.string_type().get());
+}
+
+void type_system_test::get_array_types_by_name_test()
+{
+    // setup array types.
+    type_system::instance.get_array_type(type_system::instance.byte_type(), 1);
+    type_system::instance.get_array_type(type_system::instance.string_type(), 2);
+
+    auto array_type = type_system::instance.get_type_by_name("byte[]");
+    assert_not_null(array_type);
+    assert_equal(string("byte[]"), array_type->name());
+    assert_equal(array_type.get(), type_system::instance.get_array_type(type_system::instance.byte_type(), 1).get());
+
+    auto multi_dim_array_type = type_system::instance.get_type_by_name("string[,]");
+    assert_not_null(multi_dim_array_type);
+    assert_equal(string("string[,]"), multi_dim_array_type->name());
+    assert_equal(multi_dim_array_type.get(), type_system::instance.get_array_type(type_system::instance.string_type(), 2).get());
+}
+
+void type_system_test::create_string_array_test()
+{
+    auto string_array_type = type_system::instance.get_array_type(type_system::instance.string_type(), 1);
+    assert_not_null(string_array_type);
+    auto string_elem1 = type_system::instance.create("A");
+    auto string_elem2 = type_system::instance.create("B");
+    auto string_elem3 = type_system::instance.create("C");
+    auto string_array = type_system::instance.create(
+        string_array_type, 
+        {string_elem1, string_elem2, string_elem3});
+    assert_not_null(string_array);
+    assert_equal(3L, string_array->storage().length());
+    auto str1 = string_array->storage().get_string(0);
+    auto str2 = string_array->storage().get_string(1);
+    auto str3 = string_array->storage().get_string(2);
+    assert_equal(string_view("A"), str1);
+    assert_equal(string_view("B"), str2);
+    assert_equal(string_view("C"), str3);
 }

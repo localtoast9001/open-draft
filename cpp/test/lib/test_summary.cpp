@@ -9,13 +9,14 @@
 
 namespace testfx
 {
-    test_summary::test_summary()
-        : _passed_tests(0), _failed_tests(0), _total_duration(0)
+    test_summary::test_summary(const std::string& class_name)
+        : _class_name(class_name), _passed_tests(0), _failed_tests(0), _total_duration(0)
     {
     }
 
     void test_summary::add_result(const test_result& result)
     {
+        _results.push_back(result);
         _total_duration += result.duration();
         if (result.passed())
         {

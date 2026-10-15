@@ -8,8 +8,8 @@
 
 namespace testfx
 {
-    test_result::test_result()
-        : _passed(false), _message(), _duration()
+    test_result::test_result(const std::string& name)
+        : _name(name), _passed(false), _message(), _duration()
     {
     }
 
