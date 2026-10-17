@@ -19,4 +19,7 @@ target_include_directories(testfx
     ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/test
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../inc/private
 )
+
+target_link_libraries(testfx PUBLIC xml)

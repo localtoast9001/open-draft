@@ -6,8 +6,8 @@
  */
 #pragma once
 
-#ifndef _OPEN_DRAFT_DIAGRAM_HPP_
-#define _OPEN_DRAFT_DIAGRAM_HPP_
+#ifndef __OPEN_DRAFT_DIAGRAM_HPP__
+#define __OPEN_DRAFT_DIAGRAM_HPP__
 
 namespace opendraft
 {
@@ -23,4 +23,4 @@ namespace opendraft
     }
 }
 
-#endif /* _OPEN_DRAFT_DIAGRAM_HPP_ */
+#endif /* __OPEN_DRAFT_DIAGRAM_HPP__ */

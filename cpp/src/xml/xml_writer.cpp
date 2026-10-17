@@ -4,9 +4,9 @@
  * @file xml_writer.cpp
  * @brief Contains the implementation of the xml_writer class.
  */
-#include <tools/xml_writer.hpp>
+#include <xml_writer.hpp>
 
-using namespace opendraft::lang::tools;
+using namespace xml;
 using namespace std;
 
 xml_writer::xml_writer(ostream& os)
@@ -100,6 +100,32 @@ void xml_writer::write_attribute(const std::string& name, const std::string& val
     auto& elem = _element_stack.top();
 
     _os << " " << name << "=\"" << value << "\"";
+}
+
+void xml_writer::write_attribute(const std::string& name, const char* value)
+{
+    write_attribute(name, std::string(value));
+}
+
+void xml_writer::write_attribute(const std::string& name, int value)
+{
+    write_attribute(name, std::to_string(value));
+}
+
+void xml_writer::write_attribute(const std::string& name, double value)
+{
+    write_attribute(name, std::to_string(value));
+}
+
+void xml_writer::write_attribute(const std::string& name, bool value)
+{
+    string bool_str = value ? "true" : "false";
+    write_attribute(name, bool_str);
+}
+
+void xml_writer::write_attribute(const std::string& name, char value)
+{
+    write_attribute(name, std::string(1, value));
 }
 
 void xml_writer::write_indent()

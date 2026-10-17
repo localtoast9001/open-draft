@@ -5,12 +5,13 @@
  * @brief Contains the implementation of the parse_tree_xml_exporter class.
  */
 #include <tools/parse_tree_xml_exporter.hpp>
-#include <tools/xml_writer.hpp>
+#include <xml_writer.hpp>
 #include <format>
 
 using namespace opendraft::lang;
 using namespace opendraft::lang::tools;
 using namespace std;
+using namespace xml;
 
 /**
  * @brief Implementation class for parse_tree_xml_exporter.
@@ -816,7 +817,7 @@ void parse_tree_xml_exporter_impl::write_string_literal_expression(const string_
 void parse_tree_xml_exporter_impl::write_boolean_literal_expression(const boolean_literal_expression_parse_node& bool_node)
 {
     _writer.write_start_element("boolean");
-    _writer.write_attribute("value", bool_node.value() ? "true" : "false");
+    _writer.write_attribute("value", bool_node.value());
     _writer.write_end_element(); // End of boolean
 }
 

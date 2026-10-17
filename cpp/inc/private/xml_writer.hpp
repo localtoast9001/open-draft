@@ -13,7 +13,7 @@
 #include <ostream>
 #include <stack>
 
-namespace opendraft::lang::tools
+namespace xml
 {
     /**
      * @brief A class for writing XML.
@@ -29,6 +29,11 @@ namespace opendraft::lang::tools
         void write_full_end_element();
         void write_element(const std::string& name, const std::string& content);
         void write_attribute(const std::string& name, const std::string& value);
+        void write_attribute(const std::string& name, const char* value);
+        void write_attribute(const std::string& name, int value);
+        void write_attribute(const std::string& name, double value);
+        void write_attribute(const std::string& name, bool value);
+        void write_attribute(const std::string& name, char value);
 
     private:
         struct element_state
