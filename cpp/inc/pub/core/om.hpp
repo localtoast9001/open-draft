@@ -61,7 +61,7 @@ namespace opendraft::core
     public:
         ~object() = default;
 
-        inline const type& type() const
+        inline const core::type& type() const
         {
             return *_type;
         }
@@ -177,7 +177,7 @@ namespace opendraft::core
         primitive_type(const std::string& name, core::primitive_kind kind);
         virtual ~primitive_type() = default;
         
-        inline primitive_kind primitive_kind() const
+        inline core::primitive_kind primitive_kind() const
         {
             return _kind;
         }
