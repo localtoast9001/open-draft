@@ -13,18 +13,26 @@ using namespace std;
 
 type_system type_system::instance;
 
+const char* type_system::object_type_name = "object";
+const char* type_system::boolean_type_name = "boolean";
+const char* type_system::integer_type_name = "integer";
+const char* type_system::real_type_name = "real";
+const char* type_system::byte_type_name = "byte";
+const char* type_system::string_type_name = "string";
+
 type_system::type_system()
 {
-    _boolean_type = std::make_shared<primitive_type>("boolean", PRIMITIVE_KIND_BOOLEAN);
-    _integer_type = std::make_shared<primitive_type>("integer", PRIMITIVE_KIND_INTEGER);
-    _real_type = std::make_shared<primitive_type>("real", PRIMITIVE_KIND_REAL);
-    _byte_type = std::make_shared<primitive_type>("byte", PRIMITIVE_KIND_BYTE);
-    _string_type = std::make_shared<primitive_type>("string", PRIMITIVE_KIND_STRING);
+    _boolean_type = std::make_shared<primitive_type>(boolean_type_name, PRIMITIVE_KIND_BOOLEAN);
+    _integer_type = std::make_shared<primitive_type>(integer_type_name, PRIMITIVE_KIND_INTEGER);
+    _real_type = std::make_shared<primitive_type>(real_type_name, PRIMITIVE_KIND_REAL);
+    _byte_type = std::make_shared<primitive_type>(byte_type_name, PRIMITIVE_KIND_BYTE);
+    _string_type = std::make_shared<primitive_type>(string_type_name, PRIMITIVE_KIND_STRING);
     _types_by_name[_boolean_type->name()] = _boolean_type;
     _types_by_name[_integer_type->name()] = _integer_type;
     _types_by_name[_real_type->name()] = _real_type;
     _types_by_name[_byte_type->name()] = _byte_type;
     _types_by_name[_string_type->name()] = _string_type;
+    _types_by_name[object_type_name] = nullptr;
 }
 
 std::shared_ptr<type> type_system::get_type_by_name(const std::string& name) const

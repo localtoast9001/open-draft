@@ -17,3 +17,8 @@ function_declaration::function_declaration(
       _return_type(return_type)
 {
 }
+
+bool function_declaration::is_template() const
+{
+    return false;
+}

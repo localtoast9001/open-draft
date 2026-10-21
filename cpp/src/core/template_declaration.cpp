@@ -15,3 +15,8 @@ template_declaration::template_declaration(
     : method_declaration(name, parameters)
 {
 }
+
+bool template_declaration::is_template() const
+{
+    return true;
+}

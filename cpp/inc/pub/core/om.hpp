@@ -23,6 +23,13 @@ namespace opendraft::core
     class object;
     class object_storage;
     class type_system;
+    class class_type;
+    class array_type;
+    class primitive_type;
+    class delegate_type;
+    class delegate_binding_type;
+    class dictionary_type;
+    class interface_type;
 
     /**
      * @brief Underlying storage for an object.
@@ -266,6 +273,8 @@ namespace opendraft::core
             return _parameters;
         }
 
+        virtual bool is_template() const = 0;
+
     protected:
         method_declaration(
             const std::string& name,
@@ -287,11 +296,14 @@ namespace opendraft::core
             const std::string& name,
             const std::vector<parameter_declaration>& parameters,
             const std::shared_ptr<core::type>& return_type);
+        virtual ~function_declaration() = default;
 
         inline const std::shared_ptr<core::type>& return_type() const
         {
             return _return_type;
         }
+
+        bool is_template() const override;
 
     private:
         std::shared_ptr<core::type> _return_type;
@@ -306,6 +318,85 @@ namespace opendraft::core
         template_declaration(
             const std::string& name,
             const std::vector<parameter_declaration>& parameters);
+
+        virtual ~template_declaration() = default;
+
+        bool is_template() const override;
+    };
+
+    /**
+     * @brief Represents the signature of a callable method in the object model.
+     * @note This is used as an index for callable method registration.
+     */
+    class method_signature
+    {
+    public:
+        inline const std::string& class_name() const
+        {
+            return _class_name;
+        }
+
+        inline const std::string& name() const
+        {
+            return _name;
+        }
+
+        inline const std::vector<std::string>& parameter_types() const
+        {
+            return _parameter_types;
+        }
+
+        inline const std::string& return_type() const
+        {
+            return _return_type;
+        }
+
+        method_signature(
+            const std::string& class_name,
+            const std::string& name,
+            const std::string& return_type,
+            const std::vector<std::string>& parameter_types);
+        method_signature(
+            const method_signature& copy) = default;
+        method_signature(
+            method_signature&& move) = default;
+
+        ~method_signature() = default;
+
+        method_signature& operator=(const method_signature& copy) = default;
+        method_signature& operator=(method_signature&& move) = default;
+
+        bool operator==(const method_signature& other) const;
+        bool operator!=(const method_signature& other) const;
+        bool operator<(const method_signature& other) const;
+        bool operator<=(const method_signature& other) const;
+        bool operator>(const method_signature& other) const;
+        bool operator>=(const method_signature& other) const;
+        std::strong_ordering operator<=>(const method_signature& other) const;
+
+        /**
+         * @brief Creates a method signature from a class type and a method declaration.
+         * @param class_type The class type containing the method.
+         * @param method The method declaration to create the signature for.
+         * @param is_static Indicates whether the method is static.
+         * @return A method_signature representing the given method in the context of the class type.
+         */
+        static method_signature create(
+            const core::class_type& class_type,
+            const method_declaration& method,
+            bool is_static = false);
+
+        /**
+         * @brief Converts the method signature to a string representation.
+         * @return A string representing the method signature.
+         */
+        std::string to_string() const;
+
+    private:
+        std::string _class_name;
+        std::string _name;
+        std::string _return_type;
+        std::vector<std::string> _parameter_types;
     };
 
     /**
@@ -388,8 +479,24 @@ namespace opendraft::core
     public:
         static type_system instance;
 
+        static const char* object_type_name;
+        static const char* boolean_type_name;
+        static const char* integer_type_name;
+        static const char* real_type_name;
+        static const char* byte_type_name;
+        static const char* string_type_name;
+
         type_system();
         ~type_system() = default;
+
+        /**
+         * @brief Gets the object (any) type in the type system, represented by nullptr.
+         * @return The object (any) type, represented by nullptr.
+         */
+        inline const std::shared_ptr<type> object_type() const
+        {
+            return std::shared_ptr<type>();
+        }
 
         inline const std::shared_ptr<type>& boolean_type() const
         {
