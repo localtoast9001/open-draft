@@ -11,7 +11,7 @@ using namespace std;
 
 field::field(
     const std::string& name,
-    const std::shared_ptr<type>& field_type)
+    const type* field_type)
     : _name(name),
       _field_type(field_type)
 {

@@ -11,7 +11,7 @@ using namespace std;
 
 parameter_declaration::parameter_declaration(
     const std::string& name,
-    const std::shared_ptr<core::type>& parameter_type)
+    const core::type* parameter_type)
     : _name(name),
       _type(parameter_type)
 {

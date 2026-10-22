@@ -10,7 +10,7 @@ using namespace opendraft::core;
 
 array_type::array_type(
     const std::string& name,
-    const std::shared_ptr<type>& element_type,
+    const type* element_type,
     size_t dimension_count)
     : type(name), _element_type(element_type), _dimension_count(dimension_count)
 {

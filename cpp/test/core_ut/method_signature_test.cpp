@@ -90,19 +90,19 @@ void method_signature_test::comparison_test()
 void method_signature_test::create_test()
 {
     type_system ts;
-    auto f1p1 = parameter_declaration("p1", ts.integer_type());
-    auto f1p2 = parameter_declaration("p2", ts.string_type());
+    auto f1p1 = parameter_declaration("p1", &ts.integer_type());
+    auto f1p2 = parameter_declaration("p2", &ts.string_type());
     auto f1 = make_shared<function_declaration>(
         string("f1"),
         vector<parameter_declaration>({f1p1, f1p2}),
-        ts.boolean_type());
-    auto t1p1 = parameter_declaration("p1", ts.integer_type());
+        &ts.boolean_type());
+    auto t1p1 = parameter_declaration("p1", &ts.integer_type());
     auto t1 = make_shared<template_declaration>(
         string("t1"),
         vector<parameter_declaration>({t1p1}));
     auto fld1 = field(
         string("fld1"),
-        ts.boolean_type());
+        &ts.boolean_type());
     initializer_list<shared_ptr<method_declaration>> empty_methods({});
     initializer_list<shared_ptr<method_declaration>> methods = {f1, t1};
     initializer_list<field> empty_fields({});
@@ -110,11 +110,7 @@ void method_signature_test::create_test()
 
     auto cls = make_shared<class_type>(
         string("class_name"),
-        shared_ptr<type>(),
-        fields,
-        empty_fields,
-        methods,
-        empty_methods);
+        nullptr);
 
     auto sig1 = method_signature::create(
         *cls,

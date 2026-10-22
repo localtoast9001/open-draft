@@ -70,23 +70,23 @@ namespace opendraft::core
 
         inline const core::type& type() const
         {
-            return *_type;
+            return _type;
         }
 
         inline const object_storage& storage() const
         {
             return *_storage;
         }
-
+        
         object(
-            const std::shared_ptr<opendraft::core::type>& type,
+            const core::type& type,
             const std::shared_ptr<object_storage>& storage)
             : _type(type), _storage(storage)
         {
         }
 
     private:
-        std::shared_ptr<opendraft::core::type> _type;
+        const core::type& _type;
         std::shared_ptr<object_storage> _storage;
 
         // Disable copy and assignment.
@@ -203,7 +203,7 @@ namespace opendraft::core
     public:
         field(
             const std::string& name, 
-            const std::shared_ptr<type>& field_type);
+            const core::type* field_type);
         ~field() = default;
         field(const field&) = default;
         field(field&&) = default;
@@ -216,14 +216,14 @@ namespace opendraft::core
             return _name;
         }
 
-        inline const std::shared_ptr<type>& field_type() const
+        inline const core::type* field_type() const
         {
             return _field_type;
         }
 
     private:
         std::string _name;
-        std::shared_ptr<type> _field_type;
+        const core::type* _field_type;
     };
 
     /**
@@ -234,7 +234,7 @@ namespace opendraft::core
     public:
         parameter_declaration(
             const std::string& name,
-            const std::shared_ptr<core::type>& type);
+            const core::type* type);
         ~parameter_declaration() = default;
         parameter_declaration(const parameter_declaration&) = default;
         parameter_declaration(parameter_declaration&&) = default;
@@ -247,14 +247,14 @@ namespace opendraft::core
             return _name;
         }
 
-        inline const std::shared_ptr<core::type>& type() const
+        inline const core::type* type() const
         {
             return _type;
         }
 
     private:
         std::string _name;
-        std::shared_ptr<core::type> _type;
+        const core::type* _type;
     };
 
     /**
@@ -295,10 +295,10 @@ namespace opendraft::core
         function_declaration(
             const std::string& name,
             const std::vector<parameter_declaration>& parameters,
-            const std::shared_ptr<core::type>& return_type);
+            const core::type* return_type);
         virtual ~function_declaration() = default;
 
-        inline const std::shared_ptr<core::type>& return_type() const
+        inline const core::type* return_type() const
         {
             return _return_type;
         }
@@ -306,7 +306,7 @@ namespace opendraft::core
         bool is_template() const override;
 
     private:
-        std::shared_ptr<core::type> _return_type;
+        const core::type* _return_type;
     };
 
     /**
@@ -400,18 +400,45 @@ namespace opendraft::core
     };
 
     /**
+     * @brief Represents a user-defined interface type in the object model.
+     */
+    class interface_type : public type
+    {
+    public:
+        interface_type(
+            const std::string& name);
+        virtual ~interface_type() = default;
+
+        type_kind kind() const override;
+
+        const std::vector<core::interface_type&>& base_interfaces() const
+        {
+            return _base_interfaces;
+        }
+
+        const std::vector<std::shared_ptr<method_declaration>>& methods() const
+        {
+            return _methods;
+        }
+
+        void register_base_interface(core::type& base_interface);
+        void register_method(const std::shared_ptr<method_declaration>& method);
+
+    private:
+        std::vector<core::interface_type&> _base_interfaces;
+        std::vector<std::shared_ptr<method_declaration>> _methods;
+    };
+
+    /**
      * @brief Represents a user-defined class type in the object model.
+     * @note The class type may be registered with the type system before any members are defined. This allows for static factory methods.
      */
     class class_type : public type
     {
     public:
         class_type(
             const std::string& name,
-            const std::shared_ptr<type>& base_type,
-            std::initializer_list<field> fields,
-            std::initializer_list<field> static_fields,
-            std::initializer_list<std::shared_ptr<method_declaration>> methods,
-            std::initializer_list<std::shared_ptr<method_declaration>> static_methods);
+            const core::type* base_type);
         virtual ~class_type() = default;
 
         type_kind kind() const override;
@@ -436,8 +463,20 @@ namespace opendraft::core
             return _static_fields;
         }
 
+        inline const std::vector<core::interface_type&>& base_interfaces() const
+        {
+            return _base_interfaces;
+        }
+
+        void register_base_interface(core::interface_type& base_interface);
+        void register_field(const field& fld, bool is_static);
+        void register_method(
+            const std::shared_ptr<method_declaration>& method,
+            bool is_static);
+
     private:
-        std::shared_ptr<type> _base_type;
+        const core::type* _base_type;
+        std::vector<core::interface_type&> _base_interfaces;
         std::vector<field> _fields;
         std::vector<field> _static_fields;
         std::vector<std::shared_ptr<method_declaration>> _methods;
@@ -452,7 +491,7 @@ namespace opendraft::core
     public:
         array_type(
             const std::string& name,
-            const std::shared_ptr<type>& element_type,
+            const core::type* element_type,
             size_t dimension_count = 1);
 
         virtual ~array_type() = default;
@@ -461,13 +500,13 @@ namespace opendraft::core
 
         virtual size_t dimension_count() const override;
 
-        inline const std::shared_ptr<type>& element_type() const
+        inline const core::type* element_type() const
         {
             return _element_type;
         }
 
     private:
-        std::shared_ptr<type> _element_type;
+        const core::type* _element_type;
         size_t _dimension_count;
     };
 
@@ -493,40 +532,40 @@ namespace opendraft::core
          * @brief Gets the object (any) type in the type system, represented by nullptr.
          * @return The object (any) type, represented by nullptr.
          */
-        inline const std::shared_ptr<type> object_type() const
+        inline const core::type* object_type() const
         {
-            return std::shared_ptr<type>();
+            return nullptr;
         }
 
-        inline const std::shared_ptr<type>& boolean_type() const
+        inline const core::type& boolean_type() const
         {
-            return _boolean_type;
+            return *_boolean_type;
         }
 
-        inline const std::shared_ptr<type>& integer_type() const
+        inline const core::type& integer_type() const
         {
-            return _integer_type;
+            return *_integer_type;
         }
 
-        inline const std::shared_ptr<type>& real_type() const
+        inline const core::type& real_type() const
         {
-            return _real_type;
+            return *_real_type;
         }
 
-        inline const std::shared_ptr<type>& byte_type() const
+        inline const core::type& byte_type() const
         {
-            return _byte_type;
+            return *_byte_type;
         }
 
-        inline const std::shared_ptr<type>& string_type() const
+        inline const core::type& string_type() const
         {
-            return _string_type;
+            return *_string_type;
         }
 
-        std::shared_ptr<type> get_type_by_name(const std::string& name) const;
+        const core::type* get_type_by_name(const std::string& name) const;
 
-        std::shared_ptr<type> get_array_type(
-            const std::shared_ptr<type>& element_type,
+        const core::type& get_array_type(
+            const core::type* element_type,
             size_t dimension_count = 1);
 
         /**
@@ -583,7 +622,7 @@ namespace opendraft::core
          * @brief Creates an object representing an array of objects of a specified type or a complex type.
          */
         std::shared_ptr<object> create(
-            const std::shared_ptr<core::type>& type,
+            const core::type& type,
             std::initializer_list<std::shared_ptr<object>> values);
 
         /**
